@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const authRoutes = require('./routes/auth');
+const exampleRoutes = require('./routes/example');
 
 require('dotenv').config();
 const fileStorage = multer.diskStorage({
@@ -28,7 +28,12 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-app.use('/auth', authRoutes);
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
+
+// app.use('/example', exampleRoutes);
 app.use(cors({
     origin: true
 }));
@@ -58,11 +63,18 @@ mongoose
     process.env.MONGODB_URL
   )
   .then(result => {
-    const server = app.listen(8080);
+    const server = app.listen(8081);
     const io = require('./socket').init(server);
-    io.on('connection', socket => {
-      console.log('Client connected');
+    io.on('connection', (socket) => {
+        console.log(`New connection: ${socket.id}`);
+        socket.on('chat:message', (data) => {
+          console.log(`New message from ${socket.id}: ${data.username}: ${data.message}`);
+          io.emit('chat:message', data)
+        })
     });
   })
   .catch(err => console.log(err));
 
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname + '/index.html'))
+  })
