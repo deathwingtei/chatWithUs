@@ -120,7 +120,7 @@
             message: message.value,
             time: new Date().toLocaleTimeString(),
           }
-
+          console.log(name.value);
           let formData = new FormData();
           formData.append('username', name.value);
           formData.append('message', message.value);
@@ -128,26 +128,22 @@
           fetch("http://localhost:8081/example", {
               method: "POST",
               cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-              headers: {
-                  "Access-Control-Allow-Origin": "*",
-                  'Content-Type': 'application/json  '
-              },
               redirect: 'follow', // manual, *follow, error
               referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-              body: JSON.stringify(payload),
+              body: formData,
           })
           .then(response => response.json()) 
           .then(data => {
               console.log(data);
           });
             
-          socket.emit('chat:message', payload)
+          socket.emit('chat:message-'+name.value, payload)
           
           message.value = ''
         }
       })
 
-      socket.on('chat:message', (data) => {
+      socket.on('chat:message-'+name.value, (data) => {
         const div = document.createElement('div')
         div.classList.add('message')
         div.innerHTML = `
@@ -160,7 +156,8 @@
       function getName() {
         // get name from date timestamp
         const date = new Date()
-        return 'User-' + date.getTime()
+        // return 'User-' + date.getTime()
+        return "p-kitttichet@gmail.com";
       }
     </script>
   </body>
