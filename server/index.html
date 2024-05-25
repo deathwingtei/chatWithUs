@@ -128,7 +128,6 @@
 
       socket.on('chat:message', (data) => {
         const div = document.createElement('div')
-        console.log("a");
         div.classList.add('message')
         div.innerHTML = `
           <p class="meta">${data.username} <span>${data.time}</span></p>

@@ -103,7 +103,7 @@
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
-      const socket = io("http://localhost:8080",{transports:['websocket']});
+      const socket = io("http://localhost:8081",{transports:['websocket']});
 
       const form = document.getElementById('form')
       const message = document.getElementById('message')
@@ -120,8 +120,29 @@
             message: message.value,
             time: new Date().toLocaleTimeString(),
           }
-          socket.emit('chat:message', payload)
 
+          let formData = new FormData();
+          formData.append('username', name.value);
+          formData.append('message', message.value);
+          formData.append('time', new Date().toLocaleTimeString());
+          fetch("http://localhost:8081/example", {
+              method: "POST",
+              cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+              headers: {
+                  "Access-Control-Allow-Origin": "*",
+                  'Content-Type': 'application/json  '
+              },
+              redirect: 'follow', // manual, *follow, error
+              referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+              body: JSON.stringify(payload),
+          })
+          .then(response => response.json()) 
+          .then(data => {
+              console.log(data);
+          });
+            
+          socket.emit('chat:message', payload)
+          
           message.value = ''
         }
       })
