@@ -9,10 +9,10 @@ const exampleRoutes = require('./routes/example');
 require('dotenv').config();
 const fileStorage = multer.diskStorage({
     destination:(req,file,cb)=>{
-        cb(null,'./public/uploads/port_img');
+        cb(null,'./public/uploads/images');
     },
     filename:(req,file,cb)=>{
-        cb(null,"port_"+Date.now()+ path.extname(file.originalname) );
+        cb(null,"img_"+Date.now()+ path.extname(file.originalname) );
     }
 });
 
@@ -31,7 +31,6 @@ const fileFilter = (req, file, cb) => {
 app.use(
     multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 );
-app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -77,10 +76,10 @@ mongoose
         const io = require('./socket').init(server);
         io.on('connection', (socket) => {
             console.log(`New connection: ${socket.id}`);
-            // socket.on('chat:message', (data) => {
-            //     console.log(`New message from ${socket.id}: ${data.username}: ${data.message}`);
-            //     io.emit('chat:message', data)
-            // })
+            socket.on("disconnect", (reason) => {
+                // any custom code when socket gets disconnected;
+                console.log(`Close connection: ${reason}`);
+            });
         });
     })
 .catch(err => console.log(err));

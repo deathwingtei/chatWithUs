@@ -13,8 +13,9 @@ exports.testMessage  =  (req, res) => {
         time:req.body.time,
     }
     // send notification to all connected clients
-    // io.getIO().emit('chat:message', jsondata);
-    io.getIO().emit('chat:message-'+req.body.username, jsondata);
+    io.getIO().emit('chat:message', jsondata);
+    // io.getIO().emit('chat:message-'+req.body.username, jsondata);
+
     return res.status(200).json(jsondata);
     // res.send(notify);
 }
