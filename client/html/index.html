@@ -82,9 +82,9 @@
                 })
                 .then(response => response.json()) 
                 .then(data => {
-                    console.log(data);
                     if (data.success == 1) {
-                        alert(data.message);
+                        console.log(data.result.token);
+                        // sign token
                         document.querySelector("#email").value = "";
                         document.querySelector("#password").value = "";
                         return false;

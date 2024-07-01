@@ -40,7 +40,10 @@ exports.login = (req, res) => {
         let encpassword = hash.update(password + keynnc, 'utf-8');
         encpassword = encpassword.digest('hex');
         User.findOne({ email: email,password: encpassword }).then((result)=>{
-            return res.status(200).json({ status: 200, success: 0, result: "", message: email+" "+encpassword });
+            const signData = result._id.toString()+"_"+result.email;
+            const token = jsonwebtoken.sign({ signData }, process.env.JWT_SECRET);
+            let ret = {token:token};
+            return res.status(200).json({ status: 200, success: 1, result: ret, message: "Login Success" });
         }).catch((err) => {
             return res.status(401).json({ status: 400, success: 0, result: "", message: err });
         });
@@ -78,7 +81,6 @@ exports.loginWithAlwayNewToken = (req, res) => {
         let encpassword = hash.update(password + keynnc, 'utf-8');
         encpassword = encpassword.digest('hex');
         return res.status(400).json({ status: 400, success: 0, result: "", message: username+" "+encpassword });
-
     }
     else {
         return res.status(401).json({ status: 401, success: 0, result: "", message: "No Login Data" });
@@ -94,7 +96,6 @@ exports.changePassword = (req, res) => {
     if (id != "" && password != "" && id != undefined && password != undefined ) {
         let encpassword = hash.update(password + keynnc, 'utf-8');
         encpassword = encpassword.digest('hex');
-
     }
     else {
         return res.status(401).json({ status: 401, success: 0, result: "", message: "Please Input All Feild" });
@@ -122,16 +123,12 @@ exports.requireLogin = expressJWT({
 })
 
 exports.verifyToken = (req, res, next) => {
-
     let token = req.query.token;
-
     if(token==""||token==null)
     {
         token = req.headers.authorization.split(" ")[1];
     }
-
     jsonwebtoken.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-
         if (err) {
             // 401 Unauthorized -- 'Incorrect token'
             res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect token" });
