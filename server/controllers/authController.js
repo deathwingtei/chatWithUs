@@ -14,17 +14,14 @@ exports.register = (req, res) => {
       error.data = errors.array();
       throw error;
     }
-
     const hash = crypto.createHash('sha512');
     const keynnc = process.env.KEY_SECRET;
     const { password, email } = req.body;
-    let formattedDateTime = curerntDate();
     if (password != "" && email != "" && password != undefined && email != undefined) {
         let encpassword = hash.update(password + keynnc, 'utf-8');
         encpassword = encpassword.digest('hex');
         User.create({email: email,password: encpassword,name: email}).then((result)=>{
             return res.status(200).json({status: 200, success: 1, result: "Success",message:"Insert Data Complete "+email});
-            // res.json(result);
         }).catch((err) => {
             return res.status(400).json({status: 400, success: 0, result: "Error",message:err});
         });
@@ -37,17 +34,19 @@ exports.register = (req, res) => {
 exports.login = (req, res) => {
     const hash = crypto.createHash('sha512');
     const keynnc = process.env.KEY_SECRET;
-    let formattedDateTime = curerntDate();
     const ip = getIPAddress();
-    const { username, password } = req.body;
-    if (username != "" && password != "" && username != undefined && password != undefined) {
+    const { email, password } = req.body;
+    if (email != "" && password != "" && email != undefined && password != undefined) {
         let encpassword = hash.update(password + keynnc, 'utf-8');
         encpassword = encpassword.digest('hex');
-        res.status(400).json({ status: 400, success: 0, result: "", message: username+" "+encpassword });
-
+        User.findOne({ email: email,password: encpassword }).then((result)=>{
+            return res.status(200).json({ status: 200, success: 0, result: "", message: email+" "+encpassword });
+        }).catch((err) => {
+            return res.status(401).json({ status: 400, success: 0, result: "", message: err });
+        });
     }
     else {
-        res.status(401).json({ status: 401, success: 0, result: "", message: "No Login Data" });
+        return res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect Username or Password." });
     }
 };
 
@@ -65,7 +64,7 @@ exports.generateNewToken = (req, res) => {
 
     }
     else {
-        res.status(401).json({ status: 401, success: 0, result: "", message: "Invalid Token" });
+        return res.status(401).json({ status: 401, success: 0, result: "", message: "Invalid Token" });
     }
 };
 
@@ -78,11 +77,11 @@ exports.loginWithAlwayNewToken = (req, res) => {
     if (username != "" && password != "" && username != undefined && password != undefined) {
         let encpassword = hash.update(password + keynnc, 'utf-8');
         encpassword = encpassword.digest('hex');
-        res.status(400).json({ status: 400, success: 0, result: "", message: username+" "+encpassword });
+        return res.status(400).json({ status: 400, success: 0, result: "", message: username+" "+encpassword });
 
     }
     else {
-        res.status(401).json({ status: 401, success: 0, result: "", message: "No Login Data" });
+        return res.status(401).json({ status: 401, success: 0, result: "", message: "No Login Data" });
     }
 };
 // https://apidog.com/articles/json-web-token-jwt-nodejs/
@@ -98,7 +97,7 @@ exports.changePassword = (req, res) => {
 
     }
     else {
-        res.status(401).json({ status: 401, success: 0, result: "", message: "Please Input All Feild" });
+        return res.status(401).json({ status: 401, success: 0, result: "", message: "Please Input All Feild" });
     }
 };
 
