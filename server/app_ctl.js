@@ -5,7 +5,6 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const exampleRoutes = require('./routes/example');
-const Socket= require("./socket_with_auth").socket;
 
 require('dotenv').config();
 const fileStorage = multer.diskStorage({
@@ -68,17 +67,19 @@ app.use((error, req, res, next) => {
 
 app.use('/example', exampleRoutes);
 
-let PORT = 8081;
-
 mongoose
     .connect(
         process.env.MONGODB_URL
     )
     .then(result => {
-        let server = app.listen(PORT, () => {
-            // creating socket connection
-            Socket.setServer(server);
-            Socket.createConnection();
+        const server = app.listen(8081);
+        const io = require('./socket').init(server);
+        io.on('connection', (socket) => {
+            console.log(`New connection: ${socket.id}`);
+            socket.on("disconnect", (reason) => {
+                // any custom code when socket gets disconnected;
+                console.log(`Close connection: ${reason}`);
+            });
         });
     })
 .catch(err => console.log(err));

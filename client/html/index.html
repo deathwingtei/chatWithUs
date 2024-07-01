@@ -1,162 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login Page</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      * {
-        font-family: 'Noto Sans Thai', sans-serif;
-      }
-
-      .page-title {
-        text-align: center;
-        font-size: 2rem;
-      }
-
-      .chat-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        height: 100vh;
-        width: 640px;
-        margin: 0 auto;
-      }
-
-      .chat-messages {
-        flex: 1;
-        overflow-y: scroll;
-      }
-
-      .message {
-        background-color: #f1f0f0;
-        border-radius: 5px;
-        padding: 10px;
-        margin-bottom: 10px;
-      }
-
-      .message .meta {
-        font-size: 0.8rem;
-        color: #777;
-      }
-
-      .message .text {
-        font-size: 1rem;
-      }
-
-      .chat-form {
-        display: flex;
-        margin-top: 10px;
-      }
-
-      .chat-form #name {
-        padding: 0.5rem;
-        margin-right: 0.25rem;
-      }
-
-      .chat-form #message {
-        flex: 1;
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        border: 1px solid #4e4bfc;
-        margin-right: 0.5rem;
-      }
-
-      .chat-form button {
-        background-color: #4e4bfc;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 10px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="chat-container">
-      <h2 class="page-title">Chat App with socket.io + Express</h2>
-
-      <div class="chat-messages">
-        <div class="message">
-          <p class="meta">User 1 <span>9:12pm</span></p>
-          <p class="text">สวัสดีครับ!</p>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login Page</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <style>
+            #registerForm{
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2 class="page-title">Please Login Before Chat With US</h2>
+            <div class="card" >
+                <div class="card-body">
+                    <form id="loginForm">
+                        <h4 class="page-title">Login</h4>
+                        <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email">
+                        </div>
+                        <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="loginClick">Login</button> / <button type="button" class="btn btn-warning" id="showRegister">Register</button>
+                    </form>
+                    <form id="registerForm">
+                        <h4 class="page-title">Register</h4>
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="registerEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword">
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordConfirmation" class="form-label">Password Confirmation</label>
+                            <input type="password" class="form-control" id="passwordConfirmation">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="registerClick">Register</button> / <button type="button" class="btn btn-warning" id="showLogin">Login</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="message">
-          <p class="meta">User 2 <span>9:15pm</span></p>
-          <p class="text">ดีจ้า</p>
-        </div>
-      </div>
-      <form class="chat-form" id="form">
-        <input type="text" id="name" />
-        <input type="text" id="message" />
-        <button type="submit">Send</button>
-      </form>
-    </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <script>
+            document.querySelector("#showRegister").addEventListener("click", function(){
+                document.querySelector("#loginForm").style.display = "none";
+                document.querySelector("#registerForm").style.display = "block";
+            });
+            document.querySelector("#showLogin").addEventListener("click", function(){
+                document.querySelector("#loginForm").style.display = "block";
+                document.querySelector("#registerForm").style.display = "none";
+            });
 
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script>
-      const socket = io("http://localhost:8081",{transports:['websocket']});
+            document.querySelector("#loginForm").addEventListener("submit", function(){
+    
+            });
 
-      const form = document.getElementById('form')
-      const message = document.getElementById('message')
-      const name = document.getElementById('name')
-
-      // initial name
-      name.value = getName()
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault()
-        if (message.value) {
-          const payload = {
-            username: name.value,
-            message: message.value,
-            time: new Date().toLocaleTimeString(),
-          }
-          console.log(name.value);
-          let formData = new FormData();
-          formData.append('username', name.value);
-          formData.append('message', message.value);
-          formData.append('time', new Date().toLocaleTimeString());
-          fetch("http://localhost:8081/example", {
-              method: "POST",
-              cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-              redirect: 'follow', // manual, *follow, error
-              referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-              body: formData,
-          })
-          .then(response => response.json()) 
-          .then(data => {
-              console.log(data);
-          });
-            
-          socket.emit('chat:message', payload)
-          
-          message.value = ''
-        }
-      })
-
-      socket.on('chat:message', (data) => {
-        const div = document.createElement('div')
-        div.classList.add('message')
-        div.innerHTML = `
-          <p class="meta">${data.username} <span>${data.time}</span></p>
-          <p class="text">${data.message}</p>
-        `
-        document.querySelector('.chat-messages').appendChild(div)
-      })
-
-      function getName() {
-        // get name from date timestamp
-        const date = new Date()
-        // return 'User-' + date.getTime()
-        return "p-kitttichet@gmail.com";
-      }
-    </script>
-  </body>
+            document.querySelector("#registerForm").addEventListener("submit", function(){
+                const email = document.querySelector("#register_email").value;
+                const password = document.querySelector("#register_email").value;
+                const confirmPassword = document.querySelector("#register_email").value;
+            });
+        </script>
+    </body>
 </html>

@@ -102,6 +102,7 @@
     </div>
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="authorize.js"></script>
     <script>
       const socket = io("http://localhost:8081",{transports:['websocket']});
 
@@ -157,7 +158,14 @@
         // get name from date timestamp
         const date = new Date()
         // return 'User-' + date.getTime()
-        return "p-kitttichet@gmail.com";
+        let userEmail = getUserEmail();
+        if(userEmail==false){
+          window.location.href = "index.html";
+          // userEmail = "p.kittichet@gmail.com";
+        }else{
+          return userEmail;
+        }
+
       }
     </script>
   </body>
