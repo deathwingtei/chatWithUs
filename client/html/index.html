@@ -26,7 +26,9 @@
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password">
                         </div>
-                        <button type="submit" class="btn btn-primary" id="loginClick">Login</button> / <button type="button" class="btn btn-warning" id="showRegister">Register</button>
+                        <button type="submit" class="btn btn-primary" id="loginClick">Login</button> 
+                        / 
+                        <button type="button" class="btn btn-warning" id="showRegister">Register</button>
                     </form>
                     <form id="registerForm">
                         <h4 class="page-title">Register</h4>
@@ -42,7 +44,9 @@
                             <label for="passwordConfirmation" class="form-label">Password Confirmation</label>
                             <input type="password" class="form-control" id="passwordConfirmation">
                         </div>
-                        <button type="submit" class="btn btn-primary" id="registerClick">Register</button> / <button type="button" class="btn btn-warning" id="showLogin">Login</button>
+                        <button type="submit" class="btn btn-primary" id="registerClick">Register</button> 
+                        / 
+                        <button type="button" class="btn btn-warning" id="showLogin">Login</button>
                     </form>
                 </div>
             </div>
@@ -58,14 +62,52 @@
                 document.querySelector("#registerForm").style.display = "none";
             });
 
-            document.querySelector("#loginForm").addEventListener("submit", function(){
-    
+            document.querySelector("#loginForm").addEventListener("submit", function(e){
+                e.preventDefault();
+                return false;
             });
 
-            document.querySelector("#registerForm").addEventListener("submit", function(){
-                const email = document.querySelector("#register_email").value;
-                const password = document.querySelector("#register_email").value;
-                const confirmPassword = document.querySelector("#register_email").value;
+            document.querySelector("#registerForm").addEventListener("submit", function(e){
+                e.preventDefault();
+                const email = document.querySelector("#registerEmail").value;
+                const password = document.querySelector("#registerPassword").value;
+                const confirmPassword = document.querySelector("#passwordConfirmation").value;
+
+                if(password===confirmPassword){
+                    const post_url = 'http://localhost:8081/auth/register';
+                    let params = 'email='+email+"&password="+password;
+                    fetch(post_url, {
+                        method: "POST",
+                        // mode: 'no-cors', // no-cors, *cors, same-origin
+                        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        redirect: 'follow', // manual, *follow, error
+                        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                        body: params,
+                    })
+                    .then(response => response.json()) 
+                    .then(data => {
+                        // console.log(data);
+                        if (data.success == 1) {
+                            alert(data.message);
+                            document.querySelector("#registerEmail").value = "";
+                            document.querySelector("#registerPassword").value = "";
+                            document.querySelector("#passwordConfirmation").value = "";
+                            document.querySelector("#showLogin").click();
+                            return false;
+                        } else {
+                            alert(data.message);
+                            return false;
+                        }
+                    });
+                }else{
+                    alert("Password not match!!!");
+                    return false;
+                }
+                return false;
             });
         </script>
     </body>

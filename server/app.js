@@ -5,6 +5,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const exampleRoutes = require('./routes/example');
+const authRoutes = require('./routes/auth');
 const Socket= require("./socket_with_auth").socket;
 
 require('dotenv').config();
@@ -67,6 +68,7 @@ app.use((error, req, res, next) => {
 });
 
 app.use('/example', exampleRoutes);
+app.use('/auth', authRoutes);
 
 let PORT = 8081;
 

@@ -9,7 +9,7 @@ const postSchema = new Schema(
     },
     imageUrl: {
       type: String,
-      required: true
+      required: false
     },
     discard: {
         type: String,
@@ -17,7 +17,8 @@ const postSchema = new Schema(
     },
     sender: {
         type: String,
-        required: "admin"
+        default: "admin",
+        required: true
     },
     chat: {
       type: Schema.Types.ObjectId,
