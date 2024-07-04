@@ -42,7 +42,7 @@ exports.login = (req, res) => {
         User.findOne({ email: email,password: encpassword }).then((result)=>{
             const signData = result._id.toString()+"_"+result.email;
             const token = jsonwebtoken.sign({ signData }, process.env.JWT_SECRET);
-            let ret = {token:token};
+            let ret = {token:token,id:result._id.toString(),email:result.email,name:result.name};
             return res.status(200).json({ status: 200, success: 1, result: ret, message: "Login Success" });
         }).catch((err) => {
             return res.status(401).json({ status: 400, success: 0, result: "", message: err });

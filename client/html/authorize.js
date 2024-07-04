@@ -1,14 +1,25 @@
-function authenticate(response,next)
+function authenticate(response)
 {
     if(window !== "undefined"){
         // collect data to session storage
-        sessionStorage.setItem("cwu_token",JSON.stringify(response.data.result.token));
-        sessionStorage.setItem("cwu_id",JSON.stringify(response.data.result.id));
-        sessionStorage.setItem("cwu_user",JSON.stringify(response.data.result.name));
-        sessionStorage.setItem("cwu_email",JSON.stringify(response.data.result.email));
+        sessionStorage.setItem("cwu_token",JSON.stringify(response.token));
+        sessionStorage.setItem("cwu_id",JSON.stringify(response.id));
+        sessionStorage.setItem("cwu_user",JSON.stringify(response.name));
+        sessionStorage.setItem("cwu_email",JSON.stringify(response.email));
         // console.log(sessionStorage)
+        return "registered";
     }
-    next();
+    else{
+        if(sessionStorage.getItem("cwu_token")){
+            return "registered";
+        }else{
+            sessionStorage.setItem("cwu_token",JSON.stringify(response.token));
+            sessionStorage.setItem("cwu_id",JSON.stringify(response.id));
+            sessionStorage.setItem("cwu_user",JSON.stringify(response.name));
+            sessionStorage.setItem("cwu_email",JSON.stringify(response.email));
+            return "registered";
+        }
+    }
 }
 
 //get token data
