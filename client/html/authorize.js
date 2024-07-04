@@ -70,7 +70,7 @@ function  getUserID()
     }
 }
 
-function logout(next)
+function logout()
 {
     if(window !== "undefined"){
         sessionStorage.removeItem("cwu_token");
@@ -78,5 +78,4 @@ function logout(next)
         sessionStorage.removeItem("cwu_email");
         sessionStorage.removeItem("cwu_id");
     }
-    next();
 }

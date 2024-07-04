@@ -12,24 +12,19 @@ class Socket{
 
     createConnection(){
         io = new socket(this.#server,{cors:true}); // setting up socket connection
-
         //just a basic middleware stoirng a key email with the
         // value passed by the client while making connection.
         io.use((socket,next)=>{
-            // socket['email'] = socket.handshake.auth.email;
-            socket['email'] = "p.kittichet@gmail.com";
-           
+            socket['email'] = socket.handshake.query.email;
+            // socket['email'] = "p.kittichet@gmail.com";
             next();
         })
 
         io.on("connection", (socket) => {
-        
             socket.join(socket.email);
             console.log(`New connection: ${socket.id}`);
-
             socket.on("disconnect", (reason) => {
                 // any custom code when socket gets disconnected;
-             
               });
         });
 

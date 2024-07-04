@@ -55,11 +55,10 @@
         <script src="authorize.js"></script> 
         <script>
             // check registered
-            document.addEventListener("DOMContentLoaded", function() {
+            // document.addEventListener("DOMContentLoaded", function() {
+            window.addEventListener('load', function() {
                 // Your code here
-                const token = getToken();
-                // console.log(token);
-                window.location.href = "chat.html";
+                (getToken()!==false?window.location.href = "chat.html":'')
             });
 
             // login register show hide
@@ -81,14 +80,13 @@
                 const post_url = 'http://localhost:8081/auth/login';
                 fetch(post_url, {
                     method: "POST",
-                    // mode: 'no-cors', // no-cors, *cors, same-origin
-                    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                    cache: 'no-cache',
                     headers: {
                         "Access-Control-Allow-Origin": "*",
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    redirect: 'follow', // manual, *follow, error
-                    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                    redirect: 'follow', 
+                    referrerPolicy: 'no-referrer',
                     body: params,
                 })
                 .then(response => response.json()) 
@@ -99,6 +97,7 @@
                         const retdata =  authenticate(data.result);
                         document.querySelector("#email").value = "";
                         document.querySelector("#password").value = "";
+                        (getToken()!==false?window.location.href = "chat.html":'')
                         return false;
                     } else {
                         alert(data.message);
@@ -120,14 +119,13 @@
                     let params = 'email='+email+"&password="+password;
                     fetch(post_url, {
                         method: "POST",
-                        // mode: 'no-cors', // no-cors, *cors, same-origin
-                        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                        cache: 'no-cache',
                         headers: {
                             "Access-Control-Allow-Origin": "*",
                             'Content-Type': 'application/x-www-form-urlencoded'
                         },
-                        redirect: 'follow', // manual, *follow, error
-                        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                        redirect: 'follow',
+                        referrerPolicy: 'no-referrer',
                         body: params,
                     })
                     .then(response => response.json()) 

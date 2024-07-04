@@ -24,18 +24,18 @@ exports.testMessage  =  (req, res) => {
 
 exports.testMessage2  =  (req, res) => {
     // console.log("Socket Id:", io.getIO().id);
-    // console.log(req.body.username);
+    // console.log(req.body.email);
     // console.log(req.body.message);
     // console.log(req.body.time);
     const jsondata = {
-        username:req.body.username,
+        email:req.body.email,
         message:req.body.message,
         time:req.body.time,
     }
     // send notification to all connected clients
     const soc = Socket.getIo();
     // soc.to(req.user.email).emit("welcome","Event sent from inside of the route");
-    soc.to("p.kittichet@gmail.com").emit('chat:message', jsondata);
+    soc.to(req.body.email).emit('chat:message', jsondata);
     return res.status(200).json(jsondata);
     // res.send(notify);
 }
