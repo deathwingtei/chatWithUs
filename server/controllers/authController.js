@@ -45,11 +45,11 @@ exports.login = (req, res) => {
             let ret = {token:token,id:result._id.toString(),email:result.email,name:result.name};
             return res.status(200).json({ status: 200, success: 1, result: ret, message: "Login Success" });
         }).catch((err) => {
-            return res.status(401).json({ status: 400, success: 0, result: "", message: err });
+            return res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect Username or Password." });
         });
     }
     else {
-        return res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect Username or Password." });
+        return res.status(401).json({ status: 401, success: 0, result: "", message: "Username and Password Must be fill." });
     }
 };
 

@@ -5,6 +5,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const exampleRoutes = require('./routes/example');
+const chatRoutes = require('./routes/chat');
 const authRoutes = require('./routes/auth');
 const Socket= require("./socket_with_auth").socket;
 
@@ -69,6 +70,7 @@ app.use((error, req, res, next) => {
 
 app.use('/example', exampleRoutes);
 app.use('/auth', authRoutes);
+app.use('/chat', chatRoutes);
 
 let PORT = 8081;
 

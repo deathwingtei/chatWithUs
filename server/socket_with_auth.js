@@ -1,5 +1,6 @@
 // Source https://javascript.plainenglish.io/how-to-emit-socket-events-from-the-routes-in-nodejs-0f5703cf655f
 const socket = require("socket.io").Server;
+const jsonwebtoken = require("jsonwebtoken");
 let io = null;
 
 class Socket{
@@ -15,8 +16,11 @@ class Socket{
         //just a basic middleware stoirng a key email with the
         // value passed by the client while making connection.
         io.use((socket,next)=>{
-            socket['email'] = socket.handshake.query.email;
+            socket['token'] = socket.handshake.query.token;
             // socket['email'] = "p.kittichet@gmail.com";
+            const userData = jsonwebtoken.verify(socket.token,  process.env.JWT_SECRET).signData.split("_");
+            socket['id'] = userData[0];
+            socket['email'] = userData[1];
             next();
         })
 
@@ -25,7 +29,7 @@ class Socket{
             console.log(`New connection: ${socket.id}`);
             socket.on("disconnect", (reason) => {
                 // any custom code when socket gets disconnected;
-              });
+            });
         });
 
     }
