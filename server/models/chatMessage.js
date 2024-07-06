@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const postSchema = new Schema(
+const chatMessageSchema = new Schema(
   {
     data: {
       type: String,
@@ -29,4 +29,4 @@ const postSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('ChatMessage', postSchema);
+module.exports = mongoose.model('ChatMessage', chatMessageSchema);

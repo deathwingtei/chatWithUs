@@ -5,7 +5,8 @@ const Socket= require("../socket_with_auth").socket;
 const jsonwebtoken = require("jsonwebtoken");
 
 exports.chatRoom  =  (req, res) => {
-    const message = req.body.message,time = req.body.time;
+    const message = req.body.message
+    const time = req.body.time;
     let token = req.query.token;
     if(token==""||token==null)
     {
@@ -22,6 +23,7 @@ exports.chatRoom  =  (req, res) => {
             const userEmail = userData[1];
 
             User.findOne({ email: userEmail }).then((result)=>{
+                
                 const jsondata = {
                     message:message,
                     time:time,

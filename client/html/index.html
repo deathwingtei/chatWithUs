@@ -58,13 +58,22 @@
             // document.addEventListener("DOMContentLoaded", function() {
             window.addEventListener('load', function() {
                 // Your code here
-                if(getToken()!==false){
-                    if(getPermission()=="user"){
-                        window.location.href = "admin.html";
-                    }else{
-                        window.location.href = "chat.html";
+                try {
+                    if(getToken()!==false){
+                        if(getPermission()=="user"){
+                            window.location.href = "chat.html";
+                        }else{
+                            window.location.href = "admin.html";
+                        }
                     }
+                } catch (error) {
+                    sessionStorage.removeItem("cwu_token");
+                    sessionStorage.removeItem("cwu_user");
+                    sessionStorage.removeItem("cwu_email");
+                    sessionStorage.removeItem("cwu_id");
+                    sessionStorage.removeItem("cwu_permission");
                 }
+
             });
 
             // login register show hide
@@ -98,16 +107,16 @@
                 .then(response => response.json()) 
                 .then(data => {
                     if (data.success == 1) {
-                        // console.log(data.result);
+                        console.log(data.result);
                         // sign token
                         const retdata =  authenticate(data.result);
                         document.querySelector("#email").value = "";
                         document.querySelector("#password").value = "";
                         if(getToken()!==false){
                             if(getPermission()=="user"){
-                                window.location.href = "admin.html";
-                            }else{
                                 window.location.href = "chat.html";
+                            }else{
+                                window.location.href = "admin.html";
                             }
                         }
                         return false;

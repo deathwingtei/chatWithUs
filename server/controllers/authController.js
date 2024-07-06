@@ -5,6 +5,7 @@ const { expressjwt: expressJWT } = require("express-jwt");
 const { curerntDate, getIPAddress } = require('../util/helper');
 require('dotenv').config();
 const User = require('../models/user');
+const LoginLog = require('../models/loginLog');
 
 exports.register = (req, res) => {
     const errors = validationResult(req);
@@ -42,8 +43,14 @@ exports.login = (req, res) => {
         User.findOne({ email: email,password: encpassword }).then((result)=>{
             const signData = result._id.toString()+"_"+result.email;
             const token = jsonwebtoken.sign({ signData }, process.env.JWT_SECRET);
-            let ret = {token:token,id:result._id.toString(),email:result.email,name:result.name};
-            return res.status(200).json({ status: 200, success: 1, result: ret, message: "Login Success" });
+            let ret = {token:token,id:result._id.toString(),email:result.email,name:result.name,permission:result.permission};
+
+            LoginLog.create({userId: result._id.toString(),message: 'Login Complete'}).then((logRes)=>{
+                return res.status(200).json({ status: 200, success: 1, result: ret, message: "Login Success" });
+            }).catch((err) => {
+                return res.status(400).json({status: 400, success: 0, result: "Error",message:err});
+            });
+
         }).catch((err) => {
             return res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect Username or Password." });
         });

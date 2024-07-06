@@ -31,7 +31,6 @@ const userSchema = new Schema(
       type: String,
       default: null
     },
-    
     chats: [
       {
         type: Schema.Types.ObjectId,

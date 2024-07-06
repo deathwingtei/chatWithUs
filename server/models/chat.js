@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const postSchema = new Schema(
+const chatSchema = new Schema(
   {
     title: {
       type: String,
@@ -15,7 +15,7 @@ const postSchema = new Schema(
       type: Boolean,
       default: true
     },
-    user: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
@@ -24,4 +24,4 @@ const postSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Chat', postSchema);
+module.exports = mongoose.model('Chat', chatSchema);
