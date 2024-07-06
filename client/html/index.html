@@ -58,7 +58,13 @@
             // document.addEventListener("DOMContentLoaded", function() {
             window.addEventListener('load', function() {
                 // Your code here
-                (getToken()!==false?window.location.href = "chat.html":'')
+                if(getToken()!==false){
+                    if(getPermission()=="user"){
+                        window.location.href = "admin.html";
+                    }else{
+                        window.location.href = "chat.html";
+                    }
+                }
             });
 
             // login register show hide
@@ -97,7 +103,13 @@
                         const retdata =  authenticate(data.result);
                         document.querySelector("#email").value = "";
                         document.querySelector("#password").value = "";
-                        (getToken()!==false?window.location.href = "chat.html":'')
+                        if(getToken()!==false){
+                            if(getPermission()=="user"){
+                                window.location.href = "admin.html";
+                            }else{
+                                window.location.href = "chat.html";
+                            }
+                        }
                         return false;
                     } else {
                         alert(data.message);

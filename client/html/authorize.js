@@ -6,6 +6,7 @@ function authenticate(response)
         sessionStorage.setItem("cwu_id",JSON.stringify(response.id));
         sessionStorage.setItem("cwu_user",JSON.stringify(response.name));
         sessionStorage.setItem("cwu_email",JSON.stringify(response.email));
+        sessionStorage.setItem("cwu_permission",JSON.stringify(response.permission));
         // console.log(sessionStorage)
         return "registered";
     }
@@ -17,6 +18,7 @@ function authenticate(response)
             sessionStorage.setItem("cwu_id",JSON.stringify(response.id));
             sessionStorage.setItem("cwu_user",JSON.stringify(response.name));
             sessionStorage.setItem("cwu_email",JSON.stringify(response.email));
+            sessionStorage.setItem("cwu_permission",JSON.stringify(response.permission));
             return "registered";
         }
     }
@@ -70,6 +72,18 @@ function  getUserID()
     }
 }
 
+//get permission data
+function  getPermission()
+{
+    if(window !== "undefined"){
+        if(sessionStorage.getItem("cwu_permission")){
+            return JSON.parse(sessionStorage.getItem("cwu_permission"));
+        }else{
+            return false;
+        }
+    }
+}
+
 function logout()
 {
     if(window !== "undefined"){
@@ -77,5 +91,6 @@ function logout()
         sessionStorage.removeItem("cwu_user");
         sessionStorage.removeItem("cwu_email");
         sessionStorage.removeItem("cwu_id");
+        sessionStorage.removeItem("cwu_permission");
     }
 }

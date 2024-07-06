@@ -26,8 +26,8 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            height: 100vh;
-            width: 640px;
+            height: 90vh;
+            width: 90%;
             margin: 0 auto;
         }
 
@@ -50,6 +50,46 @@
 
         .message .text {
             font-size: 1rem;
+        }
+
+        .my-message {
+            background-color: #31983f;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 70%;
+            position: absolute;
+            right: 5%;
+        }
+
+        .my-message .meta {
+            font-size: 0.8rem;
+            color: #fff;
+        }
+
+        .my-message .text {
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .admin-message {
+            background-color: #7084bf;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 70%;
+            position: absolute;
+            left: 5%;
+        }
+
+        .admin-message .meta {
+            font-size: 0.8rem;
+            color: #fff;
+        }
+
+        .admin-message .text {
+            font-size: 1rem;
+            color: #fff;
         }
 
         .chat-form {
@@ -127,13 +167,7 @@
             form.addEventListener('submit', (e) => {
                 e.preventDefault()
                 if (message.value) {
-                    const payload = {
-                        email: email,
-                        message: message.value,
-                        time: new Date().toLocaleTimeString(),
-                    }
                     let formData = new FormData();
-                    formData.append('email', email);
                     formData.append('message', message.value);
                     formData.append('time', new Date().toLocaleTimeString());
                     fetch("http://localhost:8081/chat", {
@@ -148,20 +182,21 @@
                     })
                     .then(response => response.json()) 
                     .then(data => {
-                        console.log(data);
+                        // console.log(data);
                     });
-                        
-                    socket.emit('chat:message', payload)
-                    
                     message.value = ''
                 }
             })
 
             socket.on('chat:message', (data) => {
                 const div = document.createElement('div')
-                div.classList.add('message')
+                if(data.permission=='admin'){
+                    div.classList.add('admin-message')
+                }else{
+                    div.classList.add('my-message')
+                }
                 div.innerHTML = `
-                    <p class="meta">${data.email} <span>${data.time}</span></p>
+                    <p class="meta">${data.name} <span>${data.time}</span></p>
                     <p class="text">${data.message}</p>
                 `
                 document.querySelector('.chat-messages').appendChild(div)
