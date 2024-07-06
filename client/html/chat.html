@@ -144,6 +144,7 @@
         <script src="authorize.js"></script>
         <script>
 
+            let chatId = "";
             const form = document.getElementById('form');
             const message = document.getElementById('message');
             const logoutBtn = document.getElementById('logout-button');
@@ -168,7 +169,27 @@
                 })
                 .then(response => response.json()) 
                 .then(data => {
-                    // console.log(data);
+                    // p.kittichet@gmail.com
+                    // console.log(data.chatId);
+                    try {
+                        if(data.chatId=="" || data.chatId==null){
+                            sessionStorage.removeItem("cwu_token");
+                            sessionStorage.removeItem("cwu_user");
+                            sessionStorage.removeItem("cwu_email");
+                            sessionStorage.removeItem("cwu_id");
+                            sessionStorage.removeItem("cwu_permission");
+                            window.location.href = "index.html";
+                        }else{
+                            
+                        }
+                    } catch (error) {
+                        sessionStorage.removeItem("cwu_token");
+                        sessionStorage.removeItem("cwu_user");
+                        sessionStorage.removeItem("cwu_email");
+                        sessionStorage.removeItem("cwu_id");
+                        sessionStorage.removeItem("cwu_permission");
+                        window.location.href = "index.html";
+                    }
                 });
             });
 
@@ -176,6 +197,7 @@
                 e.preventDefault()
                 if (message.value) {
                     let formData = new FormData();
+                    formData.append('chatId', chatId);
                     formData.append('message', message.value);
                     formData.append('time', new Date().toLocaleTimeString());
                     fetch("http://localhost:8081/chat", {

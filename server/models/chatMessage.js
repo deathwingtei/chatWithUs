@@ -12,15 +12,16 @@ const chatMessageSchema = new Schema(
       required: false
     },
     discard: {
-        type: String,
+        type: Boolean,
+        default: false,
         required: false
     },
     sender: {
         type: String,
-        default: "admin",
+        default: "user",
         required: true
     },
-    chat: {
+    chatId: {
       type: Schema.Types.ObjectId,
       ref: 'Chat',
       required: true

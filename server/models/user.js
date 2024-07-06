@@ -30,13 +30,7 @@ const userSchema = new Schema(
     googleLoginValue: {
       type: String,
       default: null
-    },
-    chats: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Chat'
-      }
-    ]
+    }
   },
   { timestamps: true }
 );
