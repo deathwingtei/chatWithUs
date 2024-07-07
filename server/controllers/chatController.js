@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Socket= require("../socket_with_auth").socket;
 const jsonwebtoken = require("jsonwebtoken");
 const User = require('../models/user');
@@ -63,8 +64,6 @@ exports.chatRoom  =  (req, res) => {
             });
         }
     });
-
-
 }
 
 exports.previousChat = (req, res) => {
@@ -104,7 +103,7 @@ exports.previousChat = (req, res) => {
                         ChatMessage.aggregate([ 
                             { 
                                 $match: {
-                                    chatId: chatId,
+                                    chatId: mongoose.Types.ObjectId(chatId),
                                     discard: false
                                 } 
                             },{
@@ -126,7 +125,7 @@ exports.previousChat = (req, res) => {
                             { $unwind: '$userDetails' }
                         ]).then((chatMessageResult)=>{
                             if(chatMessageResult!="" && chatMessageResult!=null){
-                                const allMessage = chatMessageResult.map(thisMsg => {
+                                let allMessage = chatMessageResult.map(thisMsg => {
                                     return {
                                         data: thisMsg.data,
                                         imageUrl: thisMsg.imageUrl,
@@ -135,8 +134,12 @@ exports.previousChat = (req, res) => {
                                         name: thisMsg.userDetails.name
                                     };
                                 });
+                       
+                                allMessage.sort((a, b) => a.datetime - b.datetime); 
+                        
                                 jsondata.chatMessage = allMessage;
                             }
+                       
                             return res.status(200).json(jsondata);
                         }).catch((err) => {
                             return res.status(500).json({ status: 500, success: 0, result: "", message: err });
@@ -166,6 +169,134 @@ exports.previousChat = (req, res) => {
     });
 }
 
+exports.previousCustomerChat = (req, res) => {
+    let token = req.query.token;
+    let skip = (req.query.skip)?req.query.skip:0;
+    let email = (req.query.email)?req.query.email:'';
+    let jsondata = {
+        title:'',
+        chatId:'',
+        chatMessage:[]
+    }
+    if(token==""||token==null)
+    {
+        token = req.headers.authorization.split(" ")[1];
+    }
+    jsonwebtoken.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            // 401 Unauthorized -- 'Incorrect token'
+            res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect token" });
+        }
+        else {
+            const userData = decoded.signData.split("_");
+            const userID = userData[0];
+            const userEmail = userData[1];
+            if(email==''){
+                return res.status(200).json(jsondata);
+            }
+            User.findOne({ email: email }).then((userResult)=>{
+                // has user. get chat 
+                const thisUserId = userResult._id.toString();
+                Chat.findOne({ userId: thisUserId,active: true }).then((chatResult)=>{
+                    if(chatResult!="" && chatResult!=null){
+                        // get chat message
+                        const chatId = chatResult._id.toString();
+                        jsondata = {
+                            title:chatResult.title,
+                            chatId:chatResult._id.toString(),
+                        }
+                        // ChatMessage.find({chatId:chatId,discard:false}).sort({ createdAt: -1 }).skip(skip).limit(5).then((chatMessageResult)=>{
+                        ChatMessage.aggregate([ 
+                            { 
+                                $match: {
+                                    chatId: mongoose.Types.ObjectId(chatId),
+                                    discard: false
+                                } 
+                            },{
+                                $sort: {
+                                    createdAt: -1
+                                }
+                            },{
+                                $skip: skip
+                            },{
+                                $limit: 5
+                            },{
+                                $lookup: {
+                                    from: 'users',
+                                    localField: 'userId',
+                                    foreignField: '_id',
+                                    as: 'userDetails'
+                                }
+                            },
+                            { $unwind: '$userDetails' }
+                        ]).then((chatMessageResult)=>{
+                            if(chatMessageResult!="" && chatMessageResult!=null){
+                                let allMessage = chatMessageResult.map(thisMsg => {
+                                    return {
+                                        data: thisMsg.data,
+                                        imageUrl: thisMsg.imageUrl,
+                                        sender: thisMsg.sender,
+                                        datetime:thisMsg.createdAt,
+                                        name: thisMsg.userDetails.name
+                                    };
+                                });
+                       
+                                allMessage.sort((a, b) => a.datetime - b.datetime); 
+                        
+                                jsondata.chatMessage = allMessage;
+                            }
+                       
+                            return res.status(200).json(jsondata);
+                        }).catch((err) => {
+                            return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+                        });
+                    }else{
+                        // add new chat
+                        // const now = new Date();
+                        // const newChat = new Chat({
+                        //     title: email+"_"+microtime(now),
+                        //     active: 1,
+                        //     userId: thisUserId
+                        // });
+                        // newChat.save();
+                        // jsondata = {
+                        //     title:newChat.title,
+                        //     chatId:newChat._id.toString(),
+                        // }
+                        return res.status(200).json(jsondata);
+                    }
+                }).catch((err) => {
+                    return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+                });
+            }).catch((err) => {
+                return res.status(401).json({ status: 401, success: 0, result: "", message: "No Authenticate" });
+            });
+        }
+    });
+}
+
+exports.getUserList = (req, res) => {
+    let jsondata = {}
+
+    token = req.headers.authorization.split(" ")[1];
+
+    jsonwebtoken.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            // 401 Unauthorized -- 'Incorrect token'
+            res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect token" });
+        }
+        else {
+            const userData = decoded.signData.split("_");
+            const userID = userData[0];
+            const userEmail = userData[1];
+            // check admin permission
+        }
+    });
+
+
+  
+    return res.status(200).json(jsondata);
+}
 
 exports.adminChatRoom = (req, res) => {
     const jsondata = {

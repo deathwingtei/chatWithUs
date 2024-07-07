@@ -7,125 +7,8 @@
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300&display=swap"
-            rel="stylesheet"
-        />
-
-        <style>
-            * {
-                font-family: 'Noto Sans Thai', sans-serif;
-            }
-
-            .page-title {
-                text-align: center;
-                font-size: 2rem;
-            }
-
-            .chat-container {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-end;
-                height: 90vh;
-                width: 90%;
-                margin: 0 auto;
-            }
-
-            .chat-messages {
-                flex: 1;
-                overflow-y: scroll;
-            }
-
-            .message {
-                background-color: #f1f0f0;
-                border-radius: 5px;
-                padding: 10px;
-                margin-bottom: 10px;
-            }
-
-            .message .meta {
-                font-size: 0.8rem;
-                color: #777;
-            }
-
-            .message .text {
-                font-size: 1rem;
-            }
-
-            .my-message {
-                background-color: #31983f;
-                border-radius: 5px;
-                padding: 5px;
-                margin-bottom: 10px;
-                width: 70%;
-                margin-left: 25%;
-            }
-
-            .my-message .meta {
-                font-size: 0.8rem;
-                color: #fff;
-            }
-
-            .my-message .text {
-                font-size: 1rem;
-                color: #fff;
-            }
-
-            .admin-message {
-                background-color: #7084bf;
-                border-radius: 5px;
-                padding: 10px;
-                margin-bottom: 10px;
-                width: 70%;
-                left: 5%;
-            }
-
-            .admin-message .meta {
-                font-size: 0.8rem;
-                color: #fff;
-            }
-
-            .admin-message .text {
-                font-size: 1rem;
-                color: #fff;
-            }
-
-            .chat-form {
-                display: flex;
-                margin-top: 10px;
-            }
-
-            .chat-form #name {
-                padding: 0.5rem;
-                margin-right: 0.25rem;
-            }
-
-            .chat-form #message {
-                flex: 1;
-                padding: 0.5rem;
-                border-radius: 0.25rem;
-                border: 1px solid #4e4bfc;
-                margin-right: 0.5rem;
-            }
-
-            .chat-form button {
-                background-color: #4e4bfc;
-                color: #fff;
-                border: none;
-                border-radius: 5px;
-                padding: 10px;
-                cursor: pointer;
-            }
-            #logout-button{
-                width: 100px;
-                position: absolute;
-                right:5%;
-                top:3%;
-                color:yellow;
-                background-color: brown;
-                cursor: pointer;
-            }
-        </style>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="cwu.css" />
     </head>
     <body>
         <div class="chat-container">
@@ -174,8 +57,8 @@
                     // console.log(data.chatId);
                     try {
                         if(data.chatId=="" || data.chatId==null){
-                            // logout();
-                            // window.location.href = "index.html";
+                            logout();
+                            window.location.href = "index.html";
                         }else{
                             chatId = data.chatId;
                             const allmsg = data.chatMessage;
@@ -184,23 +67,23 @@
                                 const msg = allmsg[key].data;
                                 const sender = allmsg[key].sender;
                                 const datetime = allmsg[key].datetime;
-                                console.log(converstUTC(datetime));
+                                const name = allmsg[key].name;
                                 const div = document.createElement('div')
                                 if(sender=='admin'){
                                     div.classList.add('admin-message');
                                 }else{
                                     div.classList.add('my-message');
                                 }
-                                // div.innerHTML = `
-                                //     <p class="meta">${data.name} <span>${datetime}</span></p>
-                                //     <p class="text">${msg}</p>
-                                // `;
+                                div.innerHTML = `
+                                    <p class="meta">${name} <span>${converstUTC(datetime)}</span></p>
+                                    <p class="text">${msg}</p>
+                                `;
                                 document.querySelector('.chat-messages').appendChild(div);
                             }
                         }
                     } catch (error) {
-                        // logout();
-                        // window.location.href = "index.html";
+                        logout();
+                        window.location.href = "index.html";
                     }
                 });
             });
@@ -263,7 +146,7 @@
             function converstUTC(utcdate){
                 const date = new Date(utcdate);
                 // Convert to GMT+7
-                const options = { timeZone: 'Asia/Bangkok', hour12: true };
+                const options = {  hour12: true };
                 const dateInGMTPlus7 = date.toLocaleString('en-US', options);
                 return dateInGMTPlus7;
             }

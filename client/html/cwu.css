@@ -1,0 +1,153 @@
+* {
+    font-family: 'Noto Sans Thai', sans-serif;
+}
+
+.page-title {
+    text-align: center;
+    font-size: 2rem;
+}
+
+.main-container{
+    width: 100%;
+    position: relative;
+}
+
+.customer-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 95vh;
+    width: 45%;
+    margin: 0 auto;
+    position: absolute;
+    left: 2%;
+    margin:1%;
+    padding:1%;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 95vh;
+    width: 45%;
+    margin: 0 auto;
+    position: absolute;
+    right: 2%;
+    margin:1%;
+    padding:1%;
+    border-left:1px solid black;
+}
+
+
+.chat-messages {
+    flex: 1;
+    overflow-y: scroll;
+}
+
+.message {
+    background-color: #f1f0f0;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.message .meta {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.message .text {
+    font-size: 1rem;
+}
+
+.my-message {
+    background-color: #31983f;
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 10px;
+    width: 70%;
+    margin-left: 25%;
+}
+
+.my-message .meta {
+    font-size: 0.8rem;
+    color: #fff;
+}
+
+.my-message .text {
+    font-size: 1rem;
+    color: #fff;
+}
+
+.admin-message {
+    background-color: #7084bf;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 70%;
+    left: 5%;
+}
+
+.admin-message .meta {
+    font-size: 0.8rem;
+    color: #fff;
+}
+
+.admin-message .text {
+    font-size: 1rem;
+    color: #fff;
+}
+
+.chat-form {
+    display: flex;
+    margin-top: 10px;
+}
+
+.chat-form #name {
+    padding: 0.5rem;
+    margin-right: 0.25rem;
+}
+
+.chat-form #message {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid #4e4bfc;
+    margin-right: 0.5rem;
+}
+
+.chat-form button {
+    background-color: #4e4bfc;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+}
+#logout-button{
+    width: 100px;
+    position: absolute;
+    right:5%;
+    top:3%;
+    color:yellow;
+    background-color: brown;
+    cursor: pointer;
+}
+
+.customer-list {
+    list-style: none; /* Remove default bullet points */
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+
+.customer-list-item {
+    width: 95%;
+    border: 1px solid black;
+    padding:5px 5px 5px 5px;
+    margin:5px 5px 5px 0px;
+    background-color: #f7ebdf;
+    cursor: pointer;
+}

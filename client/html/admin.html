@@ -3,143 +3,33 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Chat With US</title>
+        <title>Chat With US Admin</title>
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300&display=swap"
-            rel="stylesheet"
-        />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300&display=swap" rel="stylesheet"/>
+        <link rel="stylesheet" href="cwu.css" />
 
-        <style>
-            * {
-                font-family: 'Noto Sans Thai', sans-serif;
-            }
-
-            .page-title {
-                text-align: center;
-                font-size: 2rem;
-            }
-
-            .chat-container {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-end;
-                height: 90vh;
-                width: 90%;
-                margin: 0 auto;
-            }
-
-            .chat-messages {
-                flex: 1;
-                overflow-y: scroll;
-            }
-
-            .message {
-                background-color: #f1f0f0;
-                border-radius: 5px;
-                padding: 10px;
-                margin-bottom: 10px;
-            }
-
-            .message .meta {
-                font-size: 0.8rem;
-                color: #777;
-            }
-
-            .message .text {
-                font-size: 1rem;
-            }
-
-            .my-message {
-                background-color: #31983f;
-                border-radius: 5px;
-                padding: 5px;
-                margin-bottom: 10px;
-                width: 70%;
-                margin-left: 25%;
-            }
-
-            .my-message .meta {
-                font-size: 0.8rem;
-                color: #fff;
-            }
-
-            .my-message .text {
-                font-size: 1rem;
-                color: #fff;
-            }
-
-            .admin-message {
-                background-color: #7084bf;
-                border-radius: 5px;
-                padding: 10px;
-                margin-bottom: 10px;
-                width: 70%;
-                left: 5%;
-            }
-
-            .admin-message .meta {
-                font-size: 0.8rem;
-                color: #fff;
-            }
-
-            .admin-message .text {
-                font-size: 1rem;
-                color: #fff;
-            }
-
-            .chat-form {
-                display: flex;
-                margin-top: 10px;
-            }
-
-            .chat-form #name {
-                padding: 0.5rem;
-                margin-right: 0.25rem;
-            }
-
-            .chat-form #message {
-                flex: 1;
-                padding: 0.5rem;
-                border-radius: 0.25rem;
-                border: 1px solid #4e4bfc;
-                margin-right: 0.5rem;
-            }
-
-            .chat-form button {
-                background-color: #4e4bfc;
-                color: #fff;
-                border: none;
-                border-radius: 5px;
-                padding: 10px;
-                cursor: pointer;
-            }
-            #logout-button{
-                width: 100px;
-                position: absolute;
-                right:5%;
-                top:3%;
-                color:yellow;
-                background-color: brown;
-                cursor: pointer;
-            }
-        </style>
     </head>
     <body>
-        <div class="chat-container">
-            <button id="logout-button">Logout</button>
-            <h2 class="page-title">Chat With US</h2>
-            <div class="chat-messages">
-
+        <div class="main-container">
+            <div class="customer-container">
+                <ul class="customer-list">
+                    <!-- <li class="customer-list-item">List item 1</li> -->
+                </ul>
             </div>
-            <form class="chat-form" id="form">
-                <input type="text" id="message" />
-                <button type="submit">Send</button>
-            </form>
+            <div class="chat-container">
+                <button id="logout-button">Logout</button>
+                <h2 class="page-title">Chat With </h2>
+                <div class="chat-messages">
+    
+                </div>
+                <form class="chat-form" id="form">
+                    <input type="text" id="message" />
+                    <button type="submit">Send</button>
+                </form>
+            </div>
         </div>
-
         <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
         <script src="authorize.js"></script>
         <script>
@@ -148,6 +38,7 @@
             const form = document.getElementById('form');
             const message = document.getElementById('message');
             const logoutBtn = document.getElementById('logout-button');
+            const customerListItem = document.querySelectorAll('.customer-list-item');
             // initial email
             const email = getEmail(); 
             const token = getToken(); 
@@ -158,8 +49,15 @@
             }});
 
             document.addEventListener("DOMContentLoaded", function() {
-                // get previous chat from DB
-                fetch("http://localhost:8081/chat/previous", {
+                // check admin val
+                if(getPermission()!="admin"){
+                    logout();
+                    window.location.href = "index.html";
+                    return false;
+                }
+
+                // get user list from DB
+                fetch("http://localhost:8081/chat/get_user_list", {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -170,31 +68,65 @@
                 })
                 .then(response => response.json()) 
                 .then(data => {
-                    // p.kittichet@gmail.com
-                    // console.log(data.chatId);
-                    try {
-                        if(data.chatId=="" || data.chatId==null){
-                            logout();
-                            window.location.href = "index.html";
-                        }else{
-                            
+                    console.log(data)
+                });
+            });
+
+            customerListItem.forEach(element => {
+                element.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // get previous chat from DB
+                    fetch("http://localhost:8081/chat/previous_cus", {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        },
+                        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                        redirect: 'follow', // manual, *follow, error
+                        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                    })
+                    .then(response => response.json()) 
+                    .then(data => {
+                        // p.kittichet@gmail.com
+                        // console.log(data.chatId);
+                        try {
+                            // chatId = data.chatId;
+                            // const allmsg = data.chatMessage;
+                            // console.log(data)
+                            // for (const key in allmsg) {
+                            //     const msg = allmsg[key].data;
+                            //     const sender = allmsg[key].sender;
+                            //     const datetime = allmsg[key].datetime;
+                            //     const name = allmsg[key].name;
+                            //     const div = document.createElement('div')
+                            //     if(sender=='admin'){
+                            //         div.classList.add('admin-message');
+                            //     }else{
+                            //         div.classList.add('my-message');
+                            //     }
+                            //     div.innerHTML = `
+                            //         <p class="meta">${name} <span>${converstUTC(datetime)}</span></p>
+                            //         <p class="text">${msg}</p>
+                            //     `;
+                            //     document.querySelector('.chat-messages').appendChild(div);
+                            // }
+                        } catch (error) {
+                            // logout();
+                            // window.location.href = "index.html";
                         }
-                    } catch (error) {
-                        logout();
-                        window.location.href = "index.html";
-                    }
+                    });
                 });
             });
 
             form.addEventListener('submit', (e) => {
-                e.preventDefault()
+                e.preventDefault();
                 if (message.value) {
                     let formData = new FormData();
                     formData.append('email', email);
                     formData.append('chatId', chatId);
                     formData.append('message', message.value);
-                    formData.append('time', new Date().toLocaleTimeString());
-                    fetch("http://localhost:8081/chat", {
+                    formData.append('time', new Date().toLocaleString());
+                    fetch("http://localhost:8081/admin", {
                         method: "POST",
                         headers: {
                             Authorization: `Bearer ${token}`
@@ -214,11 +146,8 @@
 
             logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const logout = logout();
-                if(logout===true){
-                    window.location.href = "index.html";
-                }
-                
+                logout();
+                window.location.href = "index.html";
             });
 
             socket.on('chat:message', (data) => {
@@ -242,6 +171,14 @@
                 }else{
                     return userEmail;
                 }
+            }
+
+            function converstUTC(utcdate){
+                const date = new Date(utcdate);
+                // Convert to GMT+7
+                const options = {  hour12: true };
+                const dateInGMTPlus7 = date.toLocaleString('en-US', options);
+                return dateInGMTPlus7;
             }
         </script>
     </body>
