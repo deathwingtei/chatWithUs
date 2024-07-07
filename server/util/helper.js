@@ -45,16 +45,11 @@ exports.curerntDate = (returntype = "") =>{
     let month = parseInt(date_ex[1])<10 ? "0"+parseInt(date_ex[1]) : parseInt(date_ex[1]);
     let year = parseInt(date_ex[2])-543;
     let formattedDateTime = year+"-"+month+"-"+day+" "+date_time_ex[1];
-    if(returntype=="date")
-    {
+    if(returntype=="date"){
         formattedDateTime = year+"-"+month+"-"+day;
-    }
-    if(returntype=="time")
-    {
+    }else if(returntype=="time"){
         formattedDateTime = date_time_ex[1];
-    }
-    if(returntype=="time_no_second")
-    {
+    }else if(returntype=="time_no_second"){
         formattedDateTime = time_ex[0]+":"+time_ex[1];
     }
 

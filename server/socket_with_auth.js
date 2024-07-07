@@ -17,10 +17,10 @@ class Socket{
         // value passed by the client while making connection.
         io.use((socket,next)=>{
             socket['token'] = socket.handshake.query.token;
-            // socket['email'] = "p.kittichet@gmail.com";
+            socket['email'] = socket.handshake.query.email;
             const userData = jsonwebtoken.verify(socket.token,  process.env.JWT_SECRET).signData.split("_");
             socket['id'] = userData[0];
-            socket['email'] = userData[1];
+            // socket['email'] = socket.handshake.query.email;
             next();
         })
 

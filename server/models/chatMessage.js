@@ -21,6 +21,11 @@ const chatMessageSchema = new Schema(
         default: "user",
         required: true
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
     chatId: {
       type: Schema.Types.ObjectId,
       ref: 'Chat',

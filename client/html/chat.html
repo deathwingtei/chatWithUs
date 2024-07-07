@@ -153,7 +153,8 @@
             const token = getToken(); 
 
             const socket = io("http://localhost:8081",{transports:['websocket'],query: {
-                token: token
+                token: token,
+                email: email
             }});
 
             document.addEventListener("DOMContentLoaded", function() {
@@ -173,33 +174,45 @@
                     // console.log(data.chatId);
                     try {
                         if(data.chatId=="" || data.chatId==null){
-                            sessionStorage.removeItem("cwu_token");
-                            sessionStorage.removeItem("cwu_user");
-                            sessionStorage.removeItem("cwu_email");
-                            sessionStorage.removeItem("cwu_id");
-                            sessionStorage.removeItem("cwu_permission");
-                            window.location.href = "index.html";
+                            // logout();
+                            // window.location.href = "index.html";
                         }else{
-                            
+                            chatId = data.chatId;
+                            const allmsg = data.chatMessage;
+                            console.log(data)
+                            for (const key in allmsg) {
+                                const msg = allmsg[key].data;
+                                const sender = allmsg[key].sender;
+                                const datetime = allmsg[key].datetime;
+                                console.log(converstUTC(datetime));
+                                const div = document.createElement('div')
+                                if(sender=='admin'){
+                                    div.classList.add('admin-message');
+                                }else{
+                                    div.classList.add('my-message');
+                                }
+                                // div.innerHTML = `
+                                //     <p class="meta">${data.name} <span>${datetime}</span></p>
+                                //     <p class="text">${msg}</p>
+                                // `;
+                                document.querySelector('.chat-messages').appendChild(div);
+                            }
                         }
                     } catch (error) {
-                        sessionStorage.removeItem("cwu_token");
-                        sessionStorage.removeItem("cwu_user");
-                        sessionStorage.removeItem("cwu_email");
-                        sessionStorage.removeItem("cwu_id");
-                        sessionStorage.removeItem("cwu_permission");
-                        window.location.href = "index.html";
+                        // logout();
+                        // window.location.href = "index.html";
                     }
                 });
             });
 
             form.addEventListener('submit', (e) => {
-                e.preventDefault()
+                e.preventDefault();
                 if (message.value) {
                     let formData = new FormData();
+                    formData.append('email', email);
                     formData.append('chatId', chatId);
                     formData.append('message', message.value);
-                    formData.append('time', new Date().toLocaleTimeString());
+                    formData.append('time', new Date().toLocaleString());
                     fetch("http://localhost:8081/chat", {
                         method: "POST",
                         headers: {
@@ -220,11 +233,8 @@
 
             logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const logout = logout();
-                if(logout===true){
-                    window.location.href = "index.html";
-                }
-                
+                logout();
+                window.location.href = "index.html";
             });
 
             socket.on('chat:message', (data) => {
@@ -248,6 +258,14 @@
                 }else{
                     return userEmail;
                 }
+            }
+
+            function converstUTC(utcdate){
+                const date = new Date(utcdate);
+                // Convert to GMT+7
+                const options = { timeZone: 'Asia/Bangkok', hour12: true };
+                const dateInGMTPlus7 = date.toLocaleString('en-US', options);
+                return dateInGMTPlus7;
             }
         </script>
     </body>
