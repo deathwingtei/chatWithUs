@@ -41,6 +41,7 @@
             }});
 
             document.addEventListener("DOMContentLoaded", function() {
+      
                 // get previous chat from DB
                 fetch("http://localhost:8081/chat/previous", {
                     method: "GET",
@@ -79,6 +80,7 @@
                                     <p class="text">${msg}</p>
                                 `;
                                 document.querySelector('.chat-messages').appendChild(div);
+                                // console.log('Current Socket ID:', socket.id);
                             }
                         }
                     } catch (error) {
@@ -87,6 +89,8 @@
                     }
                 });
             });
+
+
 
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -131,7 +135,9 @@
                     <p class="meta">${data.name} <span>${data.time}</span></p>
                     <p class="text">${data.message}</p>
                 `;
-                document.querySelector('.chat-messages').appendChild(div)
+                document.querySelector('.chat-messages').appendChild(div);
+                document.querySelector('.chat-messages').scrollTop = document.querySelector('.chat-messages').scrollHeight;
+
             });
 
             function getEmail() {

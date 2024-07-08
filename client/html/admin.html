@@ -50,6 +50,7 @@
                 token: token,
                 email: email
             }});
+            
 
             document.addEventListener("DOMContentLoaded", function() {
                 // check admin val
@@ -87,6 +88,7 @@
                         newlist.appendChild(secondLine);
                         newlist.setAttribute('data-email', email); 
                         document.querySelector('.customer-list').appendChild(newlist);
+                        // console.log('Current Socket ID:', socket.id);
                     }
                     initCustomerList(token);
                 });
@@ -182,7 +184,8 @@
                     <p class="meta">${data.name} <span>${data.time}</span></p>
                     <p class="text">${data.message}</p>
                 `;
-                document.querySelector('.chat-messages').appendChild(div)
+                document.querySelector('.chat-messages').appendChild(div);
+                document.querySelector('.chat-messages').scrollTop = document.querySelector('.chat-messages').scrollHeight;
             });
 
             function getEmail() {

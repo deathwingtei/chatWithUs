@@ -19,14 +19,15 @@ class Socket{
             socket['token'] = socket.handshake.query.token;
             socket['email'] = socket.handshake.query.email;
             const userData = jsonwebtoken.verify(socket.token,  process.env.JWT_SECRET).signData.split("_");
-            socket['id'] = userData[0];
+            socket['user_id'] = userData[0];
+            console.log(socket.id);
             // socket['email'] = socket.handshake.query.email;
             next();
         })
 
         io.on("connection", (socket) => {
             socket.join(socket.email);
-            console.log(`New connection: ${socket.id}`);
+            // console.log(`New connection: ${socket.id}`);
             socket.on("disconnect", (reason) => {
                 // any custom code when socket gets disconnected;
             });
@@ -36,6 +37,14 @@ class Socket{
 
     getIo(){
         return io;
+    }
+
+    updateSocketEmailAndJoinRoom(socketId, newEmail) {
+        const socket = io.sockets.sockets.get(socketId);
+        if (socket) {
+          socket.email = newEmail;
+          socket.join(newEmail);
+        }
     }
 }
 

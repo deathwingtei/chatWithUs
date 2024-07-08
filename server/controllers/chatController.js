@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
-const Socket= require("../socket_with_auth").socket;
+const { socket } = require("../socket_with_auth");
 const jsonwebtoken = require("jsonwebtoken");
 const User = require('../models/user');
 const Chat = require('../models/chat');
 const ChatMessage = require('../models/ChatMessage');
 const {microtime} = require('../util/helper');
 
+function changeEmailAndJoinRoom(socketId, newEmail) {
+    socket.updateSocketEmailAndJoinRoom(socketId, newEmail);
+}
 
 exports.chatRoom  =  (req, res) => {
     const message = req.body.message
@@ -48,7 +51,7 @@ exports.chatRoom  =  (req, res) => {
                         });
                         addChat.save();
 
-                        const soc = Socket.getIo();
+                        const soc = socket.getIo();
                         soc.to(email).emit('chat:message', jsondata);
                         return res.status(200).json(jsondata);
                     }else{
@@ -179,6 +182,8 @@ exports.previousCustomerChat = (req, res) => {
         chatId:'',
         chatMessage:[]
     }
+    const soc = socket;
+    console.log(soc);
     if(token==""||token==null)
     {
         token = req.headers.authorization.split(" ")[1];
