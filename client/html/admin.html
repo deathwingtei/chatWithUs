@@ -14,7 +14,7 @@
     <body>
         <div class="main-container">
             <div class="customer-container">
-                <ul class="customer-list">
+                <ul class="customer-list" id="customer-list">
                     <!-- <li class="customer-list-item">List item 1</li> -->
                 </ul>
             </div>
@@ -25,6 +25,8 @@
     
                 </div>
                 <form class="chat-form" id="form">
+                    <input type="hidden" id="current_chat_id" value="">
+                    <input type="hidden" id="current_chat_email" value="">
                     <input type="text" id="message" />
                     <button type="submit">Send</button>
                 </form>
@@ -39,6 +41,7 @@
             const message = document.getElementById('message');
             const logoutBtn = document.getElementById('logout-button');
             const customerListItem = document.querySelectorAll('.customer-list-item');
+            const customerList = document.querySelector('#customer-list');
             // initial email
             const email = getEmail(); 
             const token = getToken(); 
@@ -68,65 +71,83 @@
                 })
                 .then(response => response.json()) 
                 .then(data => {
-                    console.log(data)
+                    const allChat = (data.result);
+                    for (const key in allChat) {
+                        const title = allChat[key].title;
+                        const name = allChat[key].name;
+                        const email = allChat[key].email;
+                        const datetime = allChat[key].datetime;
+                        let newlist = document.createElement('li');
+                        newlist.className = 'customer-list-item';
+                        // Create first line of text
+                        let firstLine = document.createTextNode("Chat with "+name);
+                        newlist.appendChild(firstLine);
+                        newlist.appendChild(document.createElement('br'));
+                        let secondLine = document.createTextNode( "Created At : "+converstUTC(datetime));
+                        newlist.appendChild(secondLine);
+                        newlist.setAttribute('data-email', email); 
+                        document.querySelector('.customer-list').appendChild(newlist);
+                    }
+                    initCustomerList(token);
                 });
             });
 
-            customerListItem.forEach(element => {
-                element.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    // get previous chat from DB
-                    fetch("http://localhost:8081/chat/previous_cus", {
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        },
-                        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-                        redirect: 'follow', // manual, *follow, error
-                        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-                    })
-                    .then(response => response.json()) 
-                    .then(data => {
-                        // p.kittichet@gmail.com
-                        // console.log(data.chatId);
-                        try {
-                            // chatId = data.chatId;
-                            // const allmsg = data.chatMessage;
-                            // console.log(data)
-                            // for (const key in allmsg) {
-                            //     const msg = allmsg[key].data;
-                            //     const sender = allmsg[key].sender;
-                            //     const datetime = allmsg[key].datetime;
-                            //     const name = allmsg[key].name;
-                            //     const div = document.createElement('div')
-                            //     if(sender=='admin'){
-                            //         div.classList.add('admin-message');
-                            //     }else{
-                            //         div.classList.add('my-message');
-                            //     }
-                            //     div.innerHTML = `
-                            //         <p class="meta">${name} <span>${converstUTC(datetime)}</span></p>
-                            //         <p class="text">${msg}</p>
-                            //     `;
-                            //     document.querySelector('.chat-messages').appendChild(div);
-                            // }
-                        } catch (error) {
-                            // logout();
-                            // window.location.href = "index.html";
-                        }
+            function initCustomerList(token){
+                document.querySelectorAll('.customer-list-item').forEach(element => {
+                    element.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        // get previous chat from DB
+                        const email = element.getAttribute("data-email");
+                        fetch("http://localhost:8081/chat/previous_cus?email="+email, {
+                            method: "GET",
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            },
+                            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                            redirect: 'follow', // manual, *follow, error
+                            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                        })
+                        .then(response => response.json()) 
+                        .then(data => {
+                            chatId = data.chatId;
+                            document.querySelector("#current_chat_id").value = chatId;
+                            document.querySelector("#current_chat_email").value = email;
+                            document.querySelector(".chat-messages").innerHTML = '';
+                            const allmsg = data.chatMessage;
+                            for (const key in allmsg) {
+                                const msg = allmsg[key].data;
+                                const sender = allmsg[key].sender;
+                                const datetime = allmsg[key].datetime;
+                                const name = allmsg[key].name;
+                                const div = document.createElement('div');
+                                if(sender=='user'){
+                                    div.classList.add('admin-message');
+                                }else{
+                                    div.classList.add('my-message');
+                                }
+                                div.innerHTML = `
+                                    <p class="meta">${name} <span>${converstUTC(datetime)}</span></p>
+                                    <p class="text">${msg}</p>
+                                `;
+                                document.querySelector('.chat-messages').appendChild(div);
+                            }
+                        
+                        });
                     });
                 });
-            });
+            }
 
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (message.value) {
                     let formData = new FormData();
-                    formData.append('email', email);
-                    formData.append('chatId', chatId);
+                    const thisChatId = document.querySelector("#current_chat_id").value;
+                    const thisEmail = document.querySelector("#current_chat_email").value;
+                    formData.append('email', thisEmail);
+                    formData.append('chatId', thisChatId);
                     formData.append('message', message.value);
                     formData.append('time', new Date().toLocaleString());
-                    fetch("http://localhost:8081/admin", {
+                    fetch("http://localhost:8081/chat", {
                         method: "POST",
                         headers: {
                             Authorization: `Bearer ${token}`

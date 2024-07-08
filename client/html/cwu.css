@@ -16,11 +16,41 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    height: 95vh;
-    width: 45%;
+    height: 90vh;
+    width: 25%;
     margin: 0 auto;
     position: absolute;
     left: 2%;
+    margin:1%;
+    padding:1%;
+    overflow-y: scroll;
+
+}
+
+::-webkit-scrollbar {
+    width: 1px;
+}
+  
+::-webkit-scrollbar-track {
+    background: #999;
+    border-radius: 10px;
+}
+  
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+  
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.customer-chat-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 90vh;
+    width: 96%;
     margin:1%;
     padding:1%;
 }
@@ -29,8 +59,8 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    height: 95vh;
-    width: 45%;
+    height: 90vh;
+    width: 65%;
     margin: 0 auto;
     position: absolute;
     right: 2%;
@@ -38,7 +68,6 @@
     padding:1%;
     border-left:1px solid black;
 }
-
 
 .chat-messages {
     flex: 1;

@@ -11,6 +11,7 @@ exports.chatRoom  =  (req, res) => {
     const message = req.body.message
     const time = req.body.time;
     const chatId = req.body.chatId;
+    const email = req.body.email;
     let token = req.query.token;
     if(token==""||token==null)
     {
@@ -48,7 +49,7 @@ exports.chatRoom  =  (req, res) => {
                         addChat.save();
 
                         const soc = Socket.getIo();
-                        soc.to(userResult.email).emit('chat:message', jsondata);
+                        soc.to(email).emit('chat:message', jsondata);
                         return res.status(200).json(jsondata);
                     }else{
                         return res.status(500).json({ status: 500, success: 0, result: "", message: "chat not found." });
@@ -113,7 +114,7 @@ exports.previousChat = (req, res) => {
                             },{
                                 $skip: skip
                             },{
-                                $limit: 5
+                                $limit: 10
                             },{
                                 $lookup: {
                                     from: 'users',
@@ -219,7 +220,7 @@ exports.previousCustomerChat = (req, res) => {
                             },{
                                 $skip: skip
                             },{
-                                $limit: 5
+                                $limit: 10
                             },{
                                 $lookup: {
                                     from: 'users',
@@ -276,7 +277,6 @@ exports.previousCustomerChat = (req, res) => {
 }
 
 exports.getUserList = (req, res) => {
-    let jsondata = {}
 
     token = req.headers.authorization.split(" ")[1];
 
@@ -290,12 +290,50 @@ exports.getUserList = (req, res) => {
             const userID = userData[0];
             const userEmail = userData[1];
             // check admin permission
+            User.findOne({ _id: userID }).then((userResult)=>{
+                if(userResult.permission=="admin"){
+                    Chat.aggregate([ 
+                        { 
+                            $match: {
+                                active: true
+                            } 
+                        },{
+                            $sort: {
+                                createdAt: -1
+                            }
+                        },{
+                            $lookup: {
+                                from: 'users',
+                                localField: 'userId',
+                                foreignField: '_id',
+                                as: 'userDetails'
+                            }
+                        },
+                        { $unwind: '$userDetails' }
+                    ]).then((chatResult)=>{
+                        if(chatResult!="" && chatResult!=null){
+                            let allChat = chatResult.map(thisChat => {
+                                return {
+                                    title: thisChat.title,
+                                    datetime:thisChat.createdAt,
+                                    name: thisChat.userDetails.name,
+                                    email: thisChat.userDetails.email
+                                };
+                            });
+
+                            return res.status(200).json({ status: 200, success: 1, result: allChat, message: "" });
+                        }else{
+                            return res.status(500).json({ status: 500, success: 0, result: "", message: "Chat Not Found" });
+                        }
+                    }).catch((err) => {
+                        return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+                    });
+                }else{
+                    return res.status(401).json({ status: 401, success: 0, result: "", message: "Permission Denied" });
+                }
+            });
         }
     });
-
-
-  
-    return res.status(200).json(jsondata);
 }
 
 exports.adminChatRoom = (req, res) => {
