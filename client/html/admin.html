@@ -37,6 +37,7 @@
         <script>
 
             let chatId = "";
+            let socketId = "";
             const form = document.getElementById('form');
             const message = document.getElementById('message');
             const logoutBtn = document.getElementById('logout-button');
@@ -88,6 +89,7 @@
                         newlist.appendChild(secondLine);
                         newlist.setAttribute('data-email', email); 
                         document.querySelector('.customer-list').appendChild(newlist);
+                        socketId = socket.id;
                         // console.log('Current Socket ID:', socket.id);
                     }
                     initCustomerList(token);
@@ -100,7 +102,7 @@
                         e.preventDefault();
                         // get previous chat from DB
                         const email = element.getAttribute("data-email");
-                        fetch("http://localhost:8081/chat/previous_cus?email="+email, {
+                        fetch("http://localhost:8081/chat/previous_cus?email="+email+"&socketid="+socketId, {
                             method: "GET",
                             headers: {
                                 Authorization: `Bearer ${token}`
@@ -132,6 +134,7 @@
                                     <p class="text">${msg}</p>
                                 `;
                                 document.querySelector('.chat-messages').appendChild(div);
+                                document.querySelector('.chat-messages').scrollTop = document.querySelector('.chat-messages').scrollHeight;
                             }
                         
                         });

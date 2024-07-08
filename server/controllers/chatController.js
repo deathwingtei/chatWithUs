@@ -177,21 +177,23 @@ exports.previousCustomerChat = (req, res) => {
     let token = req.query.token;
     let skip = (req.query.skip)?req.query.skip:0;
     let email = (req.query.email)?req.query.email:'';
+    let socketid = (req.query.socketid)?req.query.socketid:'';
     let jsondata = {
         title:'',
         chatId:'',
         chatMessage:[]
     }
-    const soc = socket;
-    console.log(soc);
-    if(token==""||token==null)
+    if(socketid==''){
+        return res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect Socket ID" });
+    }
+    if( token==""||token==null )
     {
         token = req.headers.authorization.split(" ")[1];
     }
     jsonwebtoken.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             // 401 Unauthorized -- 'Incorrect token'
-            res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect token" });
+            return res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect token" });
         }
         else {
             const userData = decoded.signData.split("_");
@@ -200,6 +202,7 @@ exports.previousCustomerChat = (req, res) => {
             if(email==''){
                 return res.status(200).json(jsondata);
             }
+            changeEmailAndJoinRoom(socketid,email);
             User.findOne({ email: email }).then((userResult)=>{
                 // has user. get chat 
                 const thisUserId = userResult._id.toString();

@@ -28,6 +28,7 @@
         <script>
 
             let chatId = "";
+            let socketId = "";
             const form = document.getElementById('form');
             const message = document.getElementById('message');
             const logoutBtn = document.getElementById('logout-button');
@@ -80,6 +81,7 @@
                                     <p class="text">${msg}</p>
                                 `;
                                 document.querySelector('.chat-messages').appendChild(div);
+                                socketId = socket.id;
                                 // console.log('Current Socket ID:', socket.id);
                             }
                         }
@@ -137,7 +139,6 @@
                 `;
                 document.querySelector('.chat-messages').appendChild(div);
                 document.querySelector('.chat-messages').scrollTop = document.querySelector('.chat-messages').scrollHeight;
-
             });
 
             function getEmail() {
