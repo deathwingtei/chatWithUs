@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from "next/link"
+import Link from "next/link";
+import { authenticate, getToken, getPermission, logout } from "./service/authorize";
 
 export default function Home() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -10,6 +11,21 @@ export default function Home() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
+
+    useEffect(() => {
+        // Your DOM manipulation code here
+        try {
+            if(getToken()!==false){
+                if(getPermission()=="user"){
+                    router.push('/chat')
+                }else{
+                    router.push('/admin')
+                }
+            }
+        } catch (error) {
+           logout()
+        }
+    }, []); 
 
     const sendLogin = async (e) => {
         e.preventDefault();
@@ -29,7 +45,7 @@ export default function Home() {
         const data = await res.json();
     
         if (data.success) {
-            router.push('/chat');
+            authenticate(data.result, () => router.push('/chat'));
         } else {
             setError(data.message);
         }

@@ -67,11 +67,7 @@
                         }
                     }
                 } catch (error) {
-                    sessionStorage.removeItem("cwu_token");
-                    sessionStorage.removeItem("cwu_user");
-                    sessionStorage.removeItem("cwu_email");
-                    sessionStorage.removeItem("cwu_id");
-                    sessionStorage.removeItem("cwu_permission");
+                    logout();
                 }
 
             });
