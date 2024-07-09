@@ -1,50 +1,75 @@
-'use client'
+'use client';
 
-import React, {useState} from 'react';
-import {io} from 'socket.io-client';
-const socket = io("http://localhost:8081",{transports:['websocket']});
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from "next/link"
+
 export default function Home() {
-  const [sendData,setSendData] = useState("");
-  const [id,setId] = useState("");
-  const [message,setMessage] = useState([]);
-  const handlepost = (e) =>{
-    e.preventDefault();
-    // socket.emit("message",{post:name});
-    setSendData("");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const router = useRouter();
 
-    let formData = new FormData();
-    formData.append('username', "test");
-    formData.append('message', sendData);
-    formData.append('time', new Date().toLocaleTimeString());
-    fetch("http://localhost:8081/example", {
-        method: "POST",
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: formData,
-    })
-    .then(response => response.json()) 
-    .then(data => {
-        socket.emit('chat:message', data);
+    const sendLogin = async (e) => {
+        e.preventDefault();
+        let params = 'email='+email+"&password="+password;
+        const res = await fetch(apiUrl+'auth/login', {
+            method: "POST",
+            cache: 'no-cache',
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            redirect: 'follow', 
+            referrerPolicy: 'no-referrer',
+            body: params,
+        });
+    
+        const data = await res.json();
+    
+        if (data.success) {
+            router.push('/chat');
+        } else {
+            setError(data.message);
+        }
+    };
 
-    });
-
-  };
-  
-  // socket.on("your id",data => {
-  //   setId(data);
-  // });
-  socket.on("chat:message",data => {
-    setMessage([...message,data.message]);
-  });
-  return (
-    <div>
-      <input type="text" value={sendData} onChange={(e)=> setSendData(e.target.value)} /> 
-      <button onClick={handlepost}>Send massage </button>
-      <p>Recive message {id}</p>
-      {message.map((p,index)=>(
-        <li key={index}>{p}</li>
-      ))}
-    </div>
-  )
+    return (
+        <div className='container'>
+            <h2 className="page-title">Please Login Before Chat With US</h2>
+            <div className="card" >
+                <div className="card-body">
+                    <form id="loginForm"  onSubmit={sendLogin}>
+                        <h4 className="page-title">Login</h4>
+                        <div className="mb-3">
+                            <label htmlFor="email" className="form-label">Email address</label>
+                            <input 
+                                type="email" 
+                                className="form-control" 
+                                id="email" 
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="password" className="form-label">Password</label>
+                            <input 
+                                type="password" 
+                                className="form-control" 
+                                id="password" 
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
+                        <button type="submit" className="btn btn-primary" id="loginClick">Login</button> 
+                        <Link href="register" aria-current="page" type="button" className="btn btn-warning position-absolute end-0 me-3">Register Page</Link>
+                    </form>
+                </div>
+            </div>
+        </div>
+    )
 }
