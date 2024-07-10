@@ -74,7 +74,7 @@ export const getPermission=()=>{
 }
 
 
-export const logout=(next)=>{
+export const logout=()=>{
     if(window !== undefined){
         sessionStorage.removeItem("cwu_token");
         sessionStorage.removeItem("cwu_user");
@@ -83,5 +83,4 @@ export const logout=(next)=>{
         sessionStorage.removeItem("cwu_permission");
         sessionStorage.removeItem("cwu_to_email");
     }
-    next();
 }
