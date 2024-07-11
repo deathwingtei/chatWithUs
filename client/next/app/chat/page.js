@@ -98,15 +98,7 @@ export default function Page() {
 				})
 				.then(response => response.json()) 
 				.then(data => {
-					// console.log(data);
-					// let returnData = {
-					// 	name: data.name,
-					// 	sender: data.permission,
-					// 	datetime: new Date().toLocaleString(),
-					// 	data: data.message
-					// };
-					// setMessages((prevMessages) => [...prevMessages, returnData]);
-					// setLoading(false);
+					// no any return default set in socket message
 				});
 			}
 			setMessage('');
