@@ -42,8 +42,11 @@ class Socket{
     updateSocketEmailAndJoinRoom(socketId, newEmail) {
         const socket = io.sockets.sockets.get(socketId);
         if (socket) {
-          socket.email = newEmail;
-          socket.join(newEmail);
+            socket.rooms.forEach((room) => {
+                socket.leave(room);
+            });
+            socket.email = newEmail;
+            socket.join(newEmail);
         }
     }
 }

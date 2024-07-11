@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef  } from 'react';
 import useSocket from '../service/useSocket';
 import { useRouter } from 'next/navigation';
+import { converstUTC } from '../service/utility';
 import { getUserEmail, getToken, logout } from "../service/authorize";
 
 export default function Page() {
@@ -11,9 +12,11 @@ export default function Page() {
 	const [chatId, setChatId] = useState('');
 	const [email, setEmail] = useState('');
 	const [token, setToken] = useState('');
+	const [loading, setLoading] = useState(true);
 	const [messages, setMessages] = useState([]);
 	const [message, setMessage] = useState('');
 	const router = useRouter();
+	const endOfPageRef = useRef(null);
 
 	useEffect(() => {
 		if (socket) {
@@ -41,24 +44,41 @@ export default function Page() {
 							const allmsg = data.chatMessage;
 							for (const key in allmsg) {
 								// set message to chat
-								setMessages((prevMessages) => [...prevMessages, allmsg[key].data]);
+								setMessages((prevMessages) => [...prevMessages, allmsg[key]]);
 							}
 						}
 					} catch (error) {
 						logout();
 						router.push('/');
 					}
+					setLoading(false);
 				});
 
-			// socket.on('chat:message', (newMessage) => {
-			//   setMessages((prevMessages) => [...prevMessages, newMessage]);
-			// });
+			socket.on('chat:message', (newData) => {
+				let returnData = {
+					name: newData.name,
+					sender: newData.permission,
+					datetime: new Date().toLocaleString(),
+					data: newData.message
+				};
+			  	setMessages((prevMessages) => [...prevMessages, returnData]);
+				setLoading(false);
+			});
 		}
 	}, [socket]);
 
+	useEffect(() => {
+		if (!loading) {
+		  endOfPageRef.current?.scrollIntoView({ behavior: 'smooth' });
+		}
+		setLoading(true);
+	  }, [loading]);
+
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		
 		if (socket) {
+			setLoading(true);
 			// socket.emit('chat:message', { message });
 			if(message!=""){
 				let formData = new FormData();
@@ -79,7 +99,14 @@ export default function Page() {
 				.then(response => response.json()) 
 				.then(data => {
 					// console.log(data);
-					setMessages((prevMessages) => [...prevMessages, message]);
+					// let returnData = {
+					// 	name: data.name,
+					// 	sender: data.permission,
+					// 	datetime: new Date().toLocaleString(),
+					// 	data: data.message
+					// };
+					// setMessages((prevMessages) => [...prevMessages, returnData]);
+					// setLoading(false);
 				});
 			}
 			setMessage('');
@@ -93,21 +120,27 @@ export default function Page() {
 
 	return (
 		<div>
-			<h1>Chat Page</h1>
-			<button onClick={logoutClick}>Logout</button>
-			<form onSubmit={handleSubmit}>
-				<input
-					type="text"
-					value={message}
-					onChange={(e) => setMessage(e.target.value)}
-				/>
-				<button type="submit">Send</button>
-			</form>
-			<ul>
-				{messages.map((msg, index) => (
-					<li key={index}>{msg}</li>
-				))}
-			</ul>
+			<div className="customer-chat-container">
+				<button id="logout-button"  onClick={logoutClick}>Logout</button>
+				<h2 className="page-title">Chat With US</h2>
+				<div className="chat-messages">
+					{messages.map((data, index) => (
+						<div key={index} className={(data.sender=="admin")?"admin-message":"my-message"}>
+							<p className="meta">{data.name} <span>{converstUTC(data.datetime)}</span></p>
+							<p className="text">{data.data}</p>
+						</div>
+					))}
+					<div ref={endOfPageRef}></div>
+				</div>
+				<form className="chat-form" id="form" onSubmit={handleSubmit}>
+					<input
+						type="text" id="message"
+						value={message}
+						onChange={(e) => setMessage(e.target.value)}
+					/>
+					<button type="submit">Send</button>
+				</form>
+			</div>
 		</div>
 	)
 }
