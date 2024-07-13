@@ -94,6 +94,25 @@ a {
   text-decoration: none;
 }
 
+.main-container{
+    width: 100%;
+
+}
+
+.customer-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 90vh;
+    width: 25%;
+    margin: 0 auto;
+    position: absolute;
+    left: 2%;
+    margin:1%;
+    padding:1%;
+    overflow-y: scroll;
+
+}
 
 .customer-chat-container {
   display: flex;
