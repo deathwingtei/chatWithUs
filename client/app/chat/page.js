@@ -19,6 +19,26 @@ export default function Page() {
 	const endOfPageRef = useRef(null);
 
 	useEffect(() => {
+        // Your DOM manipulation code here
+        try {
+            if(getToken()!==false){
+                if(getPermission()=="admin"){
+                    router.push('/admin');
+                }else{
+					logout();
+					router.push('/');
+				}
+            }else{
+				logout();
+				router.push('/');
+			}
+        } catch (error) {
+           logout();
+		   router.push('/');
+        }
+    }, []); 
+
+	useEffect(() => {
 		if (socket) {
 			const token = getToken();
 			const email = getUserEmail();

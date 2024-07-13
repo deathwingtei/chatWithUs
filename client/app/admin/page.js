@@ -22,6 +22,26 @@ export default function Page() {
 	const endOfPageRef = useRef(null);
 
 	useEffect(() => {
+        // Your DOM manipulation code here
+        try {
+            if(getToken()!==false){
+                if(getPermission()=="user"){
+                    router.push('/user')
+				}else{
+					logout();
+					router.push('/');
+				}
+            }else{
+				logout();
+				router.push('/');
+			}
+        } catch (error) {
+           logout();
+		   router.push('/');
+        }
+    }, []); 
+
+	useEffect(() => {
 		if (socket) {
 			if(getPermission()!="admin"){
 				logout();

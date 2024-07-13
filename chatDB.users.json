@@ -1,0 +1,38 @@
+[{
+  "_id": {
+    "$oid": "66926f58e7a99d76a2f79ed8"
+  },
+  "email": "admin@admin.com",
+  "password": "5dd225f41d300947021cf40527d807688bf0c2f5aa60e849890e0d10f81cf1a42ff618fd88c00577ea928d04956750ffb435ba5f3c785cd50d88f1c3c77c3cae",
+  "name": "admin@admin.com",
+  "status": "online",
+  "permission": "admin",
+  "googleLogin": false,
+  "googleLoginValue": null,
+  "createdAt": {
+    "$date": "2024-07-13T12:13:12.828Z"
+  },
+  "updatedAt": {
+    "$date": "2024-07-13T12:13:12.828Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6692727d399ca38ef3a21db7"
+  },
+  "email": "user@user.com",
+  "password": "a20f5568452b29552388d1d4eaf55d252833604118522900804fe4ef7e849a0dad31726eb971c8317529723bac533a72f5bd2214105ee0aec29a710252267132",
+  "name": "user@user.com",
+  "status": "online",
+  "permission": "user",
+  "googleLogin": false,
+  "googleLoginValue": null,
+  "createdAt": {
+    "$date": "2024-07-13T12:26:37.419Z"
+  },
+  "updatedAt": {
+    "$date": "2024-07-13T12:26:37.419Z"
+  },
+  "__v": 0
+}]
