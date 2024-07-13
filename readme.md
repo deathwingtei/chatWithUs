@@ -5,5 +5,11 @@ docker-compose up --build
 cd server
 npm start
 ## Second Terminal
-cd server
+cd client
 npm run dev
+
+# upcomming
+
+## Login With Google
+## Archive Chat
+## Update User Data
