@@ -113,11 +113,11 @@
                         })
                         .then(response => response.json()) 
                         .then(data => {
-                            chatId = data.chatId;
+                            chatId = data.result.chatId;
                             document.querySelector("#current_chat_id").value = chatId;
                             document.querySelector("#current_chat_email").value = email;
                             document.querySelector(".chat-messages").innerHTML = '';
-                            const allmsg = data.chatMessage;
+                            const allmsg = data.result.chatMessage;
                             for (const key in allmsg) {
                                 const msg = allmsg[key].data;
                                 const sender = allmsg[key].sender;

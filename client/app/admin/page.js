@@ -47,7 +47,9 @@ export default function Page() {
 			.then(response => response.json()) 
 			.then(data => {
 				setSocketId(socket.id);
-				setcustomerList(data.result);
+				if(data.result!=""){
+					setcustomerList(data.result);
+				}
 			});
 
 			socket.on('chat:message', (newData) => {
@@ -71,6 +73,7 @@ export default function Page() {
 	}, [loading]);
 
 	const getCustomerChat = (thisEmail) => {
+
 		setCallEmail(thisEmail);
 		fetch("http://localhost:8081/chat/previous_cus?email="+thisEmail+"&socketid="+socketId, {
 			method: "GET",
@@ -83,8 +86,8 @@ export default function Page() {
 		})
 		.then(response => response.json()) 
 		.then(data => {
-			setChatId(data.chatId);
-			const allmsg = data.chatMessage;
+			setChatId(data.result.chatId);
+			const allmsg = data.result.chatMessage;
 			setMessages('');
 			for (const key in allmsg) {
 				// set message to chat
@@ -101,8 +104,6 @@ export default function Page() {
 			// socket.emit('chat:message', { message });
 			if(message!=""){
 				let formData = new FormData();
-				console.log(callEmail);
-				console.log(chatId);
 				formData.append('email', callEmail);
 				formData.append('chatId', chatId);
 				formData.append('message', message);
@@ -148,12 +149,12 @@ export default function Page() {
                     <button id="logout-button"  onClick={logoutClick}>Logout</button>
                     <h2 className="page-title">Chat With US</h2>
                     <div className="chat-messages">
-                        {messages.map((data, index) => (
-                            <div key={index} className={(data.sender=="admin")?"admin-message":"my-message"}>
+                        {(messages)?messages.map((data, index) => (
+                            <div key={index} className={(data.sender=="admin")?"my-message":"admin-message"}>
                                 <p className="meta">{data.name} <span>{converstUTC(data.datetime)}</span></p>
                                 <p className="text">{data.data}</p>
                             </div>
-                        ))}
+                        )):''}
                         <div ref={endOfPageRef}></div>
                     </div>
                     <form className="chat-form" id="form" onSubmit={handleSubmit}>

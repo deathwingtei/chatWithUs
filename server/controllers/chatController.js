@@ -3,7 +3,7 @@ const { socket } = require("../socket_with_auth");
 const jsonwebtoken = require("jsonwebtoken");
 const User = require('../models/user');
 const Chat = require('../models/chat');
-const ChatMessage = require('../models/ChatMessage');
+const ChatMessage = require('../models/chatMessage');
 const {microtime} = require('../util/helper');
 
 function changeEmailAndJoinRoom(socketId, newEmail) {
@@ -55,7 +55,7 @@ exports.chatRoom  =  (req, res) => {
                         soc.to(email).emit('chat:message', jsondata);
                         return res.status(200).json(jsondata);
                     }else{
-                        return res.status(500).json({ status: 500, success: 0, result: "", message: "chat not found." });
+                        return res.status(200).json({ status: 200, success: 0, result: "", message: "" });
                     }
                 }).catch((err) => {
                     return res.status(500).json({ status: 500, success: 0, result: "", message: err });
@@ -255,7 +255,7 @@ exports.previousCustomerChat = (req, res) => {
                                 jsondata.chatMessage = allMessage;
                             }
                        
-                            return res.status(200).json(jsondata);
+                            return res.status(200).json({ status: 200, success: 1, result: jsondata, message: err });
                         }).catch((err) => {
                             return res.status(500).json({ status: 500, success: 0, result: "", message: err });
                         });
@@ -331,7 +331,7 @@ exports.getUserList = (req, res) => {
 
                             return res.status(200).json({ status: 200, success: 1, result: allChat, message: "" });
                         }else{
-                            return res.status(500).json({ status: 500, success: 0, result: "", message: "Chat Not Found" });
+                            return res.status(200).json({ status: 200, success: 0, result: "", message: "" });
                         }
                     }).catch((err) => {
                         return res.status(500).json({ status: 500, success: 0, result: "", message: err });
