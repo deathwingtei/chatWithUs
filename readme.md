@@ -1,12 +1,20 @@
+# First 
+Copy .env_example to .env and config variable for your pc
+
 # For run docker
 docker-compose up --build
+
 # For run pc
+
 ## First Terminal
-cd server
-npm start
+1. cd server
+2. npm install
+3. npm start
+
 ## Second Terminal
-cd client
-npm run dev
+1. cd client
+2. npm install
+3. npm run dev
 
 # upcomming
 
