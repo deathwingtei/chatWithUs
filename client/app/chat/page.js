@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef  } from 'react';
 import useSocket from '../service/useSocket';
 import { useRouter } from 'next/navigation';
 import { converstUTC } from '../service/utility';
-import { getUserEmail, getToken, logout } from "../service/authorize";
+import { getUserEmail, getPermission, getToken, logout } from "../service/authorize";
 
 export default function Page() {
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -19,24 +19,25 @@ export default function Page() {
 	const endOfPageRef = useRef(null);
 
 	useEffect(() => {
-        // Your DOM manipulation code here
-        try {
-            if(getToken()!==false){
-                if(getPermission()=="admin"){
-                    router.push('/admin');
-                }else{
-					logout();
-					router.push('/');
+		try {
+			const token = getToken();
+			if (token !== false) {
+				const permission = getPermission();
+				if (permission === "admin") {
+					router.push('/admin');
+					return;
 				}
-            }else{
+			} else {
 				logout();
 				router.push('/');
+				return;
 			}
-        } catch (error) {
-           logout();
-		   router.push('/');
-        }
-    }, []); 
+		} catch (error) {
+			console.error('Error in useEffect:', error);
+			logout();
+			router.push('/');
+		}
+	}, [router]);
 
 	useEffect(() => {
 		if (socket) {

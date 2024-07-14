@@ -16,13 +16,17 @@ class Socket{
         //just a basic middleware stoirng a key email with the
         // value passed by the client while making connection.
         io.use((socket,next)=>{
-            socket['token'] = socket.handshake.query.token;
-            socket['email'] = socket.handshake.query.email;
-            const userData = jsonwebtoken.verify(socket.token,  process.env.JWT_SECRET).signData.split("_");
-            socket['user_id'] = userData[0];
-            console.log(socket.id);
-            // socket['email'] = socket.handshake.query.email;
-            next();
+            try {
+                socket['token'] = socket.handshake.query.token;
+                socket['email'] = socket.handshake.query.email;
+                const userData = jsonwebtoken.verify(socket.token,  process.env.JWT_SECRET).signData.split("_");
+                socket['user_id'] = userData[0];
+                // console.log(socket.id);
+                // socket['email'] = socket.handshake.query.email;
+                next();
+            } catch (error) {
+                console.log(error);
+            }
         })
 
         io.on("connection", (socket) => {
