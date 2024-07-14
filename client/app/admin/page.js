@@ -67,6 +67,10 @@ export default function Page() {
 				}
 			});
 
+			socket.on('chat:cusList', (newData) => {
+				setcustomerList(newData);
+			});
+
 			socket.on('chat:message', (newData) => {
 				let returnData = {
 					name: newData.name,
@@ -88,7 +92,6 @@ export default function Page() {
 	}, [loading]);
 
 	const getCustomerChat = (thisEmail) => {
-
 		setCallEmail(thisEmail);
 		fetch("http://localhost:8081/chat/previous_cus?email="+thisEmail+"&socketid="+socketId, {
 			method: "GET",
