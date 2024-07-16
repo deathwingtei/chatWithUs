@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import { authenticate, getToken, getPermission, logout } from "./service/authorize";
+import  GoogleLoginBtn  from "./components/googleLoginButton";
 
 export default function Home() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -87,8 +88,17 @@ export default function Home() {
                             />
                         </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
-                        <button type="submit" className="btn btn-primary" id="loginClick">Login</button> 
-                        <Link href="register" aria-current="page" type="button" className="btn btn-warning position-absolute end-0 me-3">Register Page</Link>
+                        <div className="row">
+                            <div className="col-md-4">
+                                <button type="submit" className="btn btn-primary" id="loginClick">Login</button> 
+                            </div>
+                            <div className="col-md-4">
+                                <GoogleLoginBtn />
+                            </div>
+                            <div className="col-md-4">
+                                <Link href="register" aria-current="page" type="button" className="btn btn-warning position-absolute end-0 me-3">Register Page</Link>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>

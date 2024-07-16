@@ -19,10 +19,10 @@ docker-compose up --build
 ## MongoDB init 
 1. you can register user and change permission to admin for response other user chat
 2. Other user permission user must be only chat to admin
-3. can import chat DB to MongoDB password for user : user and password for admin : admin
 
 # upcomming
 
 ## Login With Google
 ## Archive Chat
 ## Update User Data
+## Notification (Email/Line app)

@@ -150,3 +150,21 @@ exports.verifyToken = (req, res, next) => {
 }
 
 
+exports.googleAuth = async (req, res, next) => {
+    const endpoint = "https://oauth2.googleapis.com/tokeninfo";
+    console.log(req.body.credential);
+    // Send request to Google to authenticate token
+    try {
+      const result = await fetch(`${endpoint}?id_token=${req.body.credential}`);
+      if (!result.ok) {
+        throw new Error("Failed to authenticate token");
+      }
+      const jwt = await result.json();
+      console.log(jwt);
+      /**
+       * TODO: Code to look up user in DB by jwt.email
+       */
+    } catch (err) {
+      return res.status(500).json({ status: 500, success: 0, result: '', message: (err.message) });
+    }
+}
