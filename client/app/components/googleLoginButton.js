@@ -1,6 +1,6 @@
 // Source https://medium.com/designly/create-a-google-login-button-with-no-dependencies-in-react-next-js-7f0f025cd4b1
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Script from "next/script";
 import { useRouter } from 'next/navigation';
 import { auth } from "./googleAuth"; // Import the auth object
@@ -8,11 +8,12 @@ import { auth } from "./googleAuth"; // Import the auth object
 const GoogleLoginBtn = () => {
     const router = useRouter();
     const authUrl = process.env.NEXT_PUBLIC_API_URL+ 'auth/google';
+    const [initialized, setInitialized] = useState(false);
 
     // Google will pass the login credential to this handler
     const handleGoogle = async (response) => {
         try {
-        const result = await auth.handleGoogle({
+            const result = await auth.handleGoogle({
             credential: response.credential,
             endpoint: authUrl,
         });
@@ -27,10 +28,10 @@ const GoogleLoginBtn = () => {
     };
 
     useEffect(() => {
+        if (initialized) return;
         // We check every 300ms to see if google client is loaded
-        const interval = setInterval(() => {
-            if (window.google) {
-                clearInterval(interval);
+        const initializeGoogle = () => {
+            if (window.google && !initialized) {
                 google.accounts.id.initialize({
                     client_id: process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID, // Your client ID from Google Cloud
                     callback: handleGoogle, // Handler to process login token
@@ -49,9 +50,23 @@ const GoogleLoginBtn = () => {
                 );
 
                 google.accounts.id.prompt();
+                setInitialized(true);
             }
-        }, 300);
-    }, []); //eslint-disable-line
+        };
+
+        if (window.google) {
+            initializeGoogle();
+          } else {
+            // If google is not loaded, set an interval to check for it
+            const interval = setInterval(() => {
+              if (window.google) {
+                clearInterval(interval);
+                initializeGoogle();
+              }
+            }, 1000);
+            return () => clearInterval(interval); // Clean up the interval on unmount
+        }
+    }, [initialized]); //eslint-disable-line
 
     return (
         <>
