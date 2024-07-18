@@ -10,7 +10,15 @@ const loginLogSchema = new Schema(
     message: {
       type: String,
       required: false
-    }
+    },
+    loginWith:{
+      type: String,
+      required: false
+    },
+    ipAddress:{
+      type: String,
+      required: false
+    },
   },
   { timestamps: true }
 );

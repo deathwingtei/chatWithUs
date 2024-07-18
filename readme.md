@@ -22,7 +22,7 @@ docker-compose up --build
 
 # upcomming
 
-## Login With Google
+## Login With Google /checked
 ## Archive Chat
 ## Update User Data
 ## Notification (Email/Line app)

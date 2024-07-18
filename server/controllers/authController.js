@@ -10,22 +10,18 @@ const LoginLog = require('../models/loginLog');
 exports.register = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      const error = new Error('Validation failed.');
-      error.statusCode = 422;
-      error.data = errors.array();
-      throw error;
+        const error = new Error('Validation failed.');
+        error.statusCode = 422;
+        error.data = errors.array();
+        throw error;
     }
-    const hash = crypto.createHash('sha512');
-    const keynnc = process.env.KEY_SECRET;
     const { password, email } = req.body;
-    if (password != "" && email != "" && password != undefined && email != undefined) {
-        let encpassword = hash.update(password + keynnc, 'utf-8');
-        encpassword = encpassword.digest('hex');
-        const userResult = await User.create({email: email,password: encpassword,name: email});
-        if(userResult){
-            return res.status(200).json({status: 200, success: 1, result: "Success",message:"Insert Data Complete "+email});
+    if (password && email) {
+        const returnProcess = await registerProcess(email,password);
+        if(returnProcess){
+            return res.status(returnProcess.status).json(returnProcess);
         }else{
-            return res.status(400).json({status: 400, success: 0, result: "Error",message:"Can not Create User"});
+            return res.status(401).json({ status: 401, success: 0, result: "", message: "User not created." });
         }
     }
     else {
@@ -79,7 +75,7 @@ exports.loginWithAlwayNewToken = (req, res) => {
     if (username != "" && password != "" && username != undefined && password != undefined) {
         let encpassword = hash.update(password + keynnc, 'utf-8');
         encpassword = encpassword.digest('hex');
-        return res.status(400).json({ status: 400, success: 0, result: "", message: username+" "+encpassword });
+        return res.status(200).json({ status: 200, success: 1, result: "", message: username+" "+encpassword });
     }
     else {
         return res.status(401).json({ status: 401, success: 0, result: "", message: "No Login Data" });
@@ -158,15 +154,28 @@ exports.googleAuth = async (req, res, next) => {
         //   console.log(jwt);
         if (email) {
             // TODO: Code to look up user in DB by jwt.email
-           const returnProcess = await loginProcess(email);
+           const returnProcess = await loginProcess(email,"","google");
            if(returnProcess.status==200){
                 // has user. login
                 return res.status(returnProcess.status).json(returnProcess);
            }else{
                 // not has user. register
+                const hash = crypto.createHash('sha512');
+                const keynnc = process.env.KEY_SECRET;
                 const password = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
                 let encpassword = hash.update(password + keynnc, 'utf-8').digest('hex');
-                const returnProcess = await registerProcess(email,encpassword,name,picture);
+          
+                const returnRegisterProcess = await registerProcess(email,encpassword,name,picture,true);
+                if(returnRegisterProcess){
+                    if(returnRegisterProcess.status==200){
+                        // register complete auto login
+                        const returnLoginProcess = await loginProcess(email,"","google");
+                        return res.status(returnLoginProcess.status).json(returnLoginProcess);
+                    }
+                    // return res.status(returnRegisterProcess.status).json(returnRegisterProcess);
+                }else{
+                    return res.status(401).json({ status: 401, success: 0, result: "", message: "User not created." });
+                }
            }
            
         }
@@ -175,8 +184,9 @@ exports.googleAuth = async (req, res, next) => {
     }
 }
 
-async function loginProcess (email,password = ""){
+async function loginProcess (email,password = "",logintype=""){
     let userResult;
+    const ip = getIPAddress();
 
     if (!email) {
         return {
@@ -206,7 +216,7 @@ async function loginProcess (email,password = ""){
                 permission: userResult.permission
             };
 
-            await LoginLog.create({ userId: userResult._id.toString(), message: 'Login Complete' });
+            await LoginLog.create({ userId: userResult._id.toString(), message: 'Login Complete', loginWith: logintype, ipAddress:ip });
 
             return {
                 status: 200,
@@ -234,6 +244,30 @@ async function loginProcess (email,password = ""){
     }
 }
 
-async function registerProcess (email,password,name = "",picture = ""){
-   
+async function registerProcess (email,password,name = "",picture = "",google = false){
+    if (email  && password) {
+        const hash = crypto.createHash('sha512');
+        const keynnc = process.env.KEY_SECRET;
+        let encpassword = hash.update(password + keynnc, 'utf-8');
+        encpassword = encpassword.digest('hex');
+        if(name===""){
+            name = email;
+        }
+        try {
+            const userResult = await User.create({email: email,password: encpassword,name: name,userPicture: picture, googleLogin:google});
+            if(userResult){
+                return {status: 200, success: 1, result: "Success",message:"Insert Data Complete "+email};
+            }else{
+                return {status: 400, success: 0, result: "Error",message:"Can not Create User"};
+            }
+        } catch (err) {
+            console.error(err);
+            return {
+                status: 500,
+                success: 0,
+                result: "",
+                message: "Internal Server Error."
+            };
+        }
+    }
 }

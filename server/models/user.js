@@ -23,13 +23,14 @@ const userSchema = new Schema(
       type: String,
       default: 'user'
     },
+    userPicture:{
+      type: String,
+      default: null,
+      required: false
+    },
     googleLogin: {
       type: Boolean,
       default: false
-    },
-    googleLoginValue: {
-      type: String,
-      default: null
     }
   },
   { timestamps: true }

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Script from "next/script";
 import { useRouter } from 'next/navigation';
 import { auth } from "./googleAuth"; // Import the auth object
+import { authenticate, getToken, getPermission, logout } from "../service/authorize";
 
 const GoogleLoginBtn = () => {
     const router = useRouter();
@@ -13,11 +14,22 @@ const GoogleLoginBtn = () => {
     // Google will pass the login credential to this handler
     const handleGoogle = async (response) => {
         try {
-            const result = await auth.handleGoogle({
+            const data = await auth.handleGoogle({
             credential: response.credential,
             endpoint: authUrl,
         });
-        if (result) {
+        if (data) {
+            if (data.success) {
+                authenticate(data.result, () => {
+                    if(getPermission()=="user"){
+                        router.push('/chat')
+                    }else{
+                        router.push('/admin')
+                    }
+                });
+            } else {
+                setError(data.message);
+            }
             router.push("/chat");
         } else {
             alert("Login failed");
