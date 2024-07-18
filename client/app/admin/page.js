@@ -17,6 +17,8 @@ export default function Page() {
 	const [message, setMessage] = useState('');
 	const [socketId, setSocketId] = useState('');
 	const [callEmail, setCallEmail] = useState('');
+	const [callName, setCallName] = useState('');
+	const [chatName, setChatName] = useState('');
     const [customerList, setcustomerList] = useState([]);
 	const router = useRouter();
 	const endOfPageRef = useRef(null);
@@ -48,6 +50,7 @@ export default function Page() {
 			const email = getUserEmail();
 			setToken(token);
 			setEmail(email);
+			setChatName("Chat With US");
 
 			// get user list from DB
 			fetch("http://localhost:8081/chat/get_user_list", {
@@ -91,8 +94,9 @@ export default function Page() {
 		setLoading(true);
 	}, [loading]);
 
-	const getCustomerChat = (thisEmail) => {
+	const getCustomerChat = (thisEmail, thisName) => {
 		setCallEmail(thisEmail);
+		setCallName(thisName);
 		fetch("http://localhost:8081/chat/previous_cus?email="+thisEmail+"&socketid="+socketId, {
 			method: "GET",
 			headers: {
@@ -106,6 +110,7 @@ export default function Page() {
 		.then(data => {
 			setChatId(data.result.chatId);
 			const allmsg = data.result.chatMessage;
+			setChatName(`Chat With ${thisName}`);
 			setMessages('');
 			for (const key in allmsg) {
 				// set message to chat
@@ -156,7 +161,7 @@ export default function Page() {
                 <div className="customer-container">
                     <ul className="customer-list" id="customer-list">
                         {customerList.map((data, index) => (
-                            <li key={index} className="customer-list-item" data-email={data.email}  onClick={() => getCustomerChat(data.email)}>
+                            <li key={index} className="customer-list-item" data-email={data.email}  onClick={() => getCustomerChat(data.email,data.name)}>
 								Chat with {data.name}<br />
 								Created At : {converstUTC(data.datetime)}
 							</li>
@@ -165,7 +170,7 @@ export default function Page() {
                 </div>
                 <div className="chat-container">
                     <button id="logout-button"  onClick={logoutClick}>Logout</button>
-                    <h2 className="page-title">Chat With US</h2>
+                    <h2 className="page-title">{chatName}</h2>
                     <div className="chat-messages">
                         {(messages)?messages.map((data, index) => (
                             <div key={index} className={(data.sender=="admin")?"my-message":"admin-message"}>
