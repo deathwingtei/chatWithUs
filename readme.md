@@ -20,9 +20,10 @@ docker-compose up --build
 1. you can register user and change permission to admin for response other user chat
 2. Other user permission user must be only chat to admin
 
-# upcomming
+# upcomming Next.js and Node.js Feature
 
 ## Login With Google /done
-## Archive Chat
+## Archive Chat /done
 ## Update User Data
 ## Notification (Email/Line app)
+## Archive Page

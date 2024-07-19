@@ -99,44 +99,16 @@ a {
 
 }
 
-.customer-container{
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    height: 90vh;
-    width: 25%;
-    margin: 0 auto;
-    position: absolute;
-    left: 2%;
-    margin:1%;
-    padding:1%;
-    overflow-y: scroll;
-
-}
-
 .customer-chat-container {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  height: 90vh;
+  height: 95vh;
   width: 96%;
   margin:1%;
   padding:1%;
 }
 
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  height: 90vh;
-  width: 65%;
-  margin: 0 auto;
-  position: absolute;
-  right: 2%;
-  margin:1%;
-  padding:1%;
-  border-left:1px solid black;
-}
 
 .chat-messages {
   flex: 1;
@@ -227,7 +199,7 @@ a {
   width: 100px;
   position: absolute;
   right:5%;
-  top:3%;
+  top:1%;
   color:yellow;
   background-color: brown;
   cursor: pointer;

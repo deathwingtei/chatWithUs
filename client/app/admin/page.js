@@ -3,8 +3,11 @@
 import React, { useEffect, useState, useRef  } from 'react';
 import useSocket from '../service/useSocket';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { converstUTC } from '../service/utility';
 import { getUserEmail, getPermission, getToken, logout } from "../service/authorize";
+import Swal from 'sweetalert2';
+import styles from "./styles.module.css"
 
 export default function Page() {
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -20,6 +23,13 @@ export default function Page() {
 	const [callName, setCallName] = useState('');
 	const [chatName, setChatName] = useState('');
     const [customerList, setcustomerList] = useState([]);
+	const [activeList, setActiveList] = useState(true);
+	const showHideBtn = 
+	{
+		src: '/images/ham_menu.png',
+		alt: 'menu'
+	}
+
 	const router = useRouter();
 	const endOfPageRef = useRef(null);
 
@@ -53,7 +63,7 @@ export default function Page() {
 			setChatName("Chat With US");
 
 			// get user list from DB
-			fetch("http://localhost:8081/chat/get_user_list", {
+			fetch(apiUrl+"chat/get_user_list", {
 				method: "GET",
 				headers: {
 					Authorization: `Bearer ${token}`
@@ -97,7 +107,7 @@ export default function Page() {
 	const getCustomerChat = (thisEmail, thisName) => {
 		setCallEmail(thisEmail);
 		setCallName(thisName);
-		fetch("http://localhost:8081/chat/previous_cus?email="+thisEmail+"&socketid="+socketId, {
+		fetch(apiUrl+"chat/previous_cus?email="+thisEmail+"&socketid="+socketId, {
 			method: "GET",
 			headers: {
 				Authorization: `Bearer ${token}`
@@ -150,6 +160,62 @@ export default function Page() {
 		}
 	};
 
+	const archiveClick = () => {
+		Swal.fire({
+			title: 'Confirm to archive this chat?',
+			text: "You can not edit anything after achive.",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#fbd11b',
+			cancelButtonColor: '#d33',
+			confirmButtonText: 'Confirm'
+		}).then((result) => {
+			if (result.isConfirmed) {
+				let formData = new FormData();
+				formData.append('chatId', chatId);
+				fetch(apiUrl+"chat/archive_chat", {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${token}`
+					},
+					cache: 'no-cache',
+					redirect: 'follow',
+					referrerPolicy: 'no-referrer',
+					body: formData,
+				})
+				.then(response => response.json()) 
+				.then(data => {
+					if(data.success==1){
+						Swal.fire({
+							title: "Archive Success.",
+							text: 'Chat ID : '+chatId,
+							icon: 'success',
+							confirmButtonText: 'Close'
+						});
+						setMessages('');
+						setChatId('');
+						setCallEmail('');
+						setChatName(`Chat With US`);
+					}else{
+						Swal.fire({
+							title: "Can not archive this chat.",
+							text: 'Chat ID : '+chatId,
+							icon: 'error',
+							confirmButtonText: 'Close'
+						});
+					}
+
+				});
+
+			}
+		});
+	}
+
+	const showHideListClick = () => {
+		const newAct = !activeList;
+		setActiveList(newAct);
+	}
+
 	const logoutClick = () => {
 		logout();
 		router.push('/');
@@ -158,19 +224,30 @@ export default function Page() {
 	return (
 		<div>
 			<div className="main-container">
-                <div className="customer-container">
-                    <ul className="customer-list" id="customer-list">
-                        {customerList.map((data, index) => (
-                            <li key={index} className="customer-list-item" data-email={data.email}  onClick={() => getCustomerChat(data.email,data.name)}>
+				<button id={chatId?styles.archiveThisChat:styles.hideArchiveThisChat} className="btn btn-warning" onClick={archiveClick}>Archive</button>
+				<button id={styles.logoutBtn} className="btn btn-danger" onClick={logoutClick}>Logout</button>
+				<Image src={showHideBtn.src} alt={showHideBtn.alt} width={25} height={25} className={styles.hideCustomerChat} onClick={showHideListClick} />
+                <div className={(activeList)?styles.customerContainer:styles.customerContainerHide}>
+					<h3>Customer List</h3>
+                    <ul className={styles.customerList} id="customer-list">
+                        {(customerList)?customerList.map((data, index) => (
+                            <li key={index} className={styles.customerListItem} data-email={data.email}  onClick={() => getCustomerChat(data.email,data.name)}>
 								Chat with {data.name}<br />
 								Created At : {converstUTC(data.datetime)}
 							</li>
-                        ))}
+                        )):''}
                     </ul>
                 </div>
-                <div className="chat-container">
-                    <button id="logout-button"  onClick={logoutClick}>Logout</button>
-                    <h2 className="page-title">{chatName}</h2>
+                <div className={(activeList)?styles.chatContainer:styles.chatContainerFull}>
+					<div className='row'>
+						<div className='col-md-10'>
+							<h2 className="page-title">{chatName}</h2>
+						</div>
+						<div className='col-md-2'>
+							
+						</div>
+					</div>
+                    {/* hideCustomerChat */}
                     <div className="chat-messages">
                         {(messages)?messages.map((data, index) => (
                             <div key={index} className={(data.sender=="admin")?"my-message":"admin-message"}>

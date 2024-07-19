@@ -70,7 +70,6 @@ exports.chatRoom  =  (req, res) => {
     });
 }
 
-
 exports.previousChat = async (req, res) => {
     let token = req.query.token;
     let skip = req.query.skip ? parseInt(req.query.skip) : 0; // Ensure skip is an integer
@@ -180,8 +179,6 @@ exports.previousChat = async (req, res) => {
         return res.status(500).json({ status: 500, success: 0, result: "", message: err.message });
     }
 };
-
-
 
 exports.previousCustomerChat = (req, res) => {
     let token = req.query.token;
@@ -294,7 +291,6 @@ exports.previousCustomerChat = (req, res) => {
     });
 }
 
-
 exports.getUserList = async (req, res) => {
     try {
         const token = req.headers.authorization.split(" ")[1];
@@ -333,6 +329,49 @@ exports.adminChatRoom = (req, res) => {
  
     }
     return res.status(200).json(jsondata);
+}
+
+exports.archiveChat = async (req, res) => {
+    try {
+        const chatId = req.body.chatId;
+        const token = req.headers.authorization.split(" ")[1];
+        const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
+        const userData = decoded.signData.split("_");
+        const userID = userData[0];
+        const userEmail = userData[1];
+
+        console.log(chatId);
+        console.log(userID);
+
+        // Check admin permission
+        const userResult = await User.findOne({ _id: userID });
+        if (userResult.permission === "admin") {
+            // Get chat and update
+            const update = await Chat.findOneAndUpdate(
+                { _id: chatId }, // Filter to find the document
+                { $set: { active: false, inActiveUser: userID } }, // Update operation
+                { new: true } // Option to return the updated document
+            );
+
+            if (update !== "error") {
+                const allChat = await getAllChat();
+                const soc = socket.getIo();
+                soc.emit('chat:cusList', allChat);
+                return res.status(200).json({ status: 200, success: 1, result: allChat, message: "" });
+            } else {
+                return res.status(500).json({ status: 500, success: 0, result: "", message: "Internal Server Error" });
+            }
+        } else {
+            return res.status(401).json({ status: 401, success: 0, result: "", message: "Permission Denied" });
+        }
+    } catch (err) {
+        console.error(err);
+        if (err.name === 'JsonWebTokenError') {
+            // 401 Unauthorized -- 'Incorrect token'
+            return res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect token" });
+        }
+        return res.status(500).json({ status: 500, success: 0, result: "", message: "Internal Server Error" });
+    }
 }
 
 async function getAllChat (){
