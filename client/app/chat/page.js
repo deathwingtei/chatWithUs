@@ -3,20 +3,39 @@
 import React, { useEffect, useState, useRef  } from 'react';
 import useSocket from '../service/useSocket';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { converstUTC } from '../service/utility';
-import { getUserEmail, getPermission, getToken, logout } from "../service/authorize";
+import { getUserEmail, getUserName, getPermission, getToken, logout } from "../service/authorize";
+import EditProfileModal from '../components/EditProfileModal';
+import styles from "./styles.module.css"
 
 export default function Page() {
 	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 	const socket = useSocket();
 	const [chatId, setChatId] = useState('');
-	const [email, setEmail] = useState('');
 	const [token, setToken] = useState('');
 	const [loading, setLoading] = useState(true);
 	const [messages, setMessages] = useState([]);
 	const [message, setMessage] = useState('');
+	const [showModal, setShowModal] = useState(false);
+	const [userProfile, setUserProfile] = useState({
+		name: '',
+		email: '',
+	});
+	const menuBtn = 
+	{
+		src: '/images/ham_menu.png',
+		alt: 'menu'
+	}
 	const router = useRouter();
 	const endOfPageRef = useRef(null);
+
+	const handleShow = () => setShowModal(true);
+	const handleClose = () => setShowModal(false);
+  
+	const updateUserProfile = (updatedProfile) => {
+	  	setUserProfile(updatedProfile);
+	};
 
 	useEffect(() => {
 		try {
@@ -43,8 +62,14 @@ export default function Page() {
 		if (socket) {
 			const token = getToken();
 			const email = getUserEmail();
+			const name = getUserName();
+			setUserProfile(
+				{
+					name:name,
+					email:email
+				}
+			)
 			setToken(token);
-			setEmail(email);
 			fetch(apiUrl+"chat/previous", {
 				method: "GET",
 				headers: {
@@ -54,26 +79,26 @@ export default function Page() {
 				redirect: 'follow', // manual, *follow, error
 				referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
 			})
-				.then(response => response.json())
-				.then(data => {
-					try {
-						if (data.chatId == "" || data.chatId == null) {
-							logout();
-							router.push('/');
-						} else {
-							setChatId(data.chatId);
-							const allmsg = data.chatMessage;
-							for (const key in allmsg) {
-								// set message to chat
-								setMessages((prevMessages) => [...prevMessages, allmsg[key]]);
-							}
-						}
-					} catch (error) {
+			.then(response => response.json())
+			.then(data => {
+				try {
+					if (data.chatId == "" || data.chatId == null) {
 						logout();
 						router.push('/');
+					} else {
+						setChatId(data.chatId);
+						const allmsg = data.chatMessage;
+						for (const key in allmsg) {
+							// set message to chat
+							setMessages((prevMessages) => [...prevMessages, allmsg[key]]);
+						}
 					}
-					setLoading(false);
-				});
+				} catch (error) {
+					logout();
+					router.push('/');
+				}
+				setLoading(false);
+			});
 
 			socket.on('chat:message', (newData) => {
 				let returnData = {
@@ -93,7 +118,7 @@ export default function Page() {
 		  endOfPageRef.current?.scrollIntoView({ behavior: 'smooth' });
 		}
 		setLoading(true);
-	  }, [loading]);
+	}, [loading]);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -103,7 +128,7 @@ export default function Page() {
 			// socket.emit('chat:message', { message });
 			if(message!=""){
 				let formData = new FormData();
-				formData.append('email', email);
+				formData.append('email', userProfile.email);
 				formData.append('chatId', chatId);
 				formData.append('message', message);
 				formData.append('time', new Date().toLocaleString());
@@ -135,6 +160,7 @@ export default function Page() {
 		<div>
 			<div className="customer-chat-container">
 				<button id="logout-button"  onClick={logoutClick}>Logout</button>
+				<Image src={menuBtn.src} alt={menuBtn.alt} width={25} height={25} className={styles.menuBtn}  onClick={handleShow}  />
 				<h2 className="page-title">Chat With US</h2>
 				<div className="chat-messages">
 					{messages.map((data, index) => (
@@ -154,6 +180,13 @@ export default function Page() {
 					<button type="submit">Send</button>
 				</form>
 			</div>
+			<EditProfileModal
+				show={showModal}
+				handleClose={handleClose}
+				userProfile={userProfile}
+				token={token}
+				updateUserProfile={updateUserProfile}
+			/>
 		</div>
 	)
 }

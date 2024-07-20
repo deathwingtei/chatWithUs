@@ -1,0 +1,8 @@
+.menuBtn{
+    position: absolute;
+    top:1%;
+    right:1%;
+    cursor: pointer;
+    padding:2px;
+    z-index: 2;
+}

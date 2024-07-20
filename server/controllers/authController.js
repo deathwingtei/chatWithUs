@@ -86,6 +86,27 @@ exports.loginWithAlwayNewToken = (req, res) => {
 exports.changePassword = (req, res) => {
     const hash = crypto.createHash('sha512');
     const keynnc = process.env.KEY_SECRET;
+    const { password } = req.body;
+
+    token = req.headers.authorization.split(" ")[1];
+  
+    const userData = jsonwebtoken.verify(token,  process.env.JWT_SECRET).signData.split("_");
+    const userID = userData[0];
+    
+    if (userID&&password) {
+        let encpassword = hash.update(password + keynnc, 'utf-8');
+        encpassword = encpassword.digest('hex');
+        return res.status(200).json({ status: 200, success: 1, result: encpassword, message: "Update Password Complete" });
+    }
+    else {
+        return res.status(401).json({ status: 401, success: 0, result: "", message: "Please Input All Feild" });
+    }
+};
+
+
+exports.updateProfile = (req, res) => {
+    const hash = crypto.createHash('sha512');
+    const keynnc = process.env.KEY_SECRET;
     const { password, id } = req.body;
     let formattedDateTime = curerntDate();
     if (id != "" && password != "" && id != undefined && password != undefined ) {
@@ -96,6 +117,7 @@ exports.changePassword = (req, res) => {
         return res.status(401).json({ status: 401, success: 0, result: "", message: "Please Input All Feild" });
     }
 };
+
 
 exports.requireLogin = expressJWT({
     secret: process.env.JWT_SECRET,
