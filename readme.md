@@ -24,6 +24,7 @@ docker-compose up --build
 
 ## Login With Google /done
 ## Archive Chat /done
-## Update User Data
+## Update User Data /done
 ## Notification (Email/Line app)
 ## Archive Page
+## User List Page

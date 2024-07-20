@@ -21,18 +21,17 @@ exports.register = async (req, res) => {
         if(returnProcess){
             return res.status(returnProcess.status).json(returnProcess);
         }else{
-            return res.status(401).json({ status: 401, success: 0, result: "", message: "User not created." });
+            return res.status(400).json({ status: 400, success: 0, result: "", message: "User not created." });
         }
     }
     else {
-        res.status(401).json({ status: 401, success: 0, result: "", message: "Please Input All Feild" });
+        res.status(422).json({ status: 422, success: 0, result: "", message: "Please Input All Feild" });
     }
 };
 
 exports.login = async (req, res) => {
     const hash = crypto.createHash('sha512');
     const keynnc = process.env.KEY_SECRET;
-    const ip = getIPAddress();
     const { email, password } = req.body;
     if (email  && password) {
         let encpassword = hash.update(password + keynnc, 'utf-8').digest('hex');
@@ -58,7 +57,7 @@ exports.generateNewToken = (req, res) => {
     const userData = jsonwebtoken.verify(token,  process.env.JWT_SECRET).signData.split("_");
     const userID = userData[0];
     const userEmail = userData[1];
-    if (userID != "" && userEmail != "" && userID != undefined && userEmail != undefined) {
+    if (userID&&userEmail) {
 
     }
     else {
@@ -72,7 +71,7 @@ exports.loginWithAlwayNewToken = (req, res) => {
     let formattedDateTime = curerntDate();
     const ip = getIPAddress();
     const { username, password } = req.body;
-    if (username != "" && password != "" && username != undefined && password != undefined) {
+    if (username&&password) {
         let encpassword = hash.update(password + keynnc, 'utf-8');
         encpassword = encpassword.digest('hex');
         return res.status(200).json({ status: 200, success: 1, result: "", message: username+" "+encpassword });
@@ -84,37 +83,61 @@ exports.loginWithAlwayNewToken = (req, res) => {
 // https://apidog.com/articles/json-web-token-jwt-nodejs/
 
 exports.changePassword = (req, res) => {
-    const hash = crypto.createHash('sha512');
-    const keynnc = process.env.KEY_SECRET;
     const { password } = req.body;
-
     token = req.headers.authorization.split(" ")[1];
   
     const userData = jsonwebtoken.verify(token,  process.env.JWT_SECRET).signData.split("_");
     const userID = userData[0];
-    
+
     if (userID&&password) {
-        let encpassword = hash.update(password + keynnc, 'utf-8');
-        encpassword = encpassword.digest('hex');
-        return res.status(200).json({ status: 200, success: 1, result: encpassword, message: "Update Password Complete" });
+        const hash = crypto.createHash('sha512');
+        const keynnc = process.env.KEY_SECRET;
+        let encpassword = hash.update(password + keynnc, 'utf-8').digest('hex');
+
+        User.findOneAndUpdate(
+            { _id: userID }, // Filter to find the document
+            { $set: { password: encpassword } }, // Update operation
+            { new: true } // Option to return the updated document
+        ).then((updateResult)=>{
+            return res.status(200).json({ status: 200, success: 1, result: updateResult, message: "Update Password Complete" });
+        }).catch((err) => {
+            return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+        });
     }
     else {
-        return res.status(401).json({ status: 401, success: 0, result: "", message: "Please Input All Feild" });
+        return res.status(422).json({ status: 422, success: 0, result: "", message: "Please Input All Feild" });
     }
 };
 
 
 exports.updateProfile = (req, res) => {
-    const hash = crypto.createHash('sha512');
-    const keynnc = process.env.KEY_SECRET;
-    const { password, id } = req.body;
-    let formattedDateTime = curerntDate();
-    if (id != "" && password != "" && id != undefined && password != undefined ) {
-        let encpassword = hash.update(password + keynnc, 'utf-8');
-        encpassword = encpassword.digest('hex');
+    const { name, email } = req.body;
+    token = req.headers.authorization.split(" ")[1];
+    const userData = jsonwebtoken.verify(token,  process.env.JWT_SECRET).signData.split("_");
+    const userID = userData[0];
+    if (name&&email&&userID) {
+        // check dupplicate email
+        User.findOne({ email: email, _id: { $ne: userID } }).then((findDupplicateEmail)=>{
+            if(findDupplicateEmail){
+                return res.status(422).json({ status: 422, success: 0, result: "", message: "Email is taken." });
+            }else{
+                User.findOneAndUpdate(
+                    { _id: userID }, // Filter to find the document
+                    { $set: { name: name, email:email } }, // Update operation
+                    { new: true } // Option to return the updated document
+                ).then((updateResult)=>{
+                    return res.status(200).json({ status: 200, success: 1, result: updateResult, message: "Update Successful" });
+                }).catch((err) => {
+                    return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+                });
+            }
+        }).catch((err) => {
+            return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+        });
+
     }
     else {
-        return res.status(401).json({ status: 401, success: 0, result: "", message: "Please Input All Feild" });
+        return res.status(422).json({ status: 422, success: 0, result: "", message: "Please Input All Feild" });
     }
 };
 
@@ -196,7 +219,7 @@ exports.googleAuth = async (req, res, next) => {
                     }
                     // return res.status(returnRegisterProcess.status).json(returnRegisterProcess);
                 }else{
-                    return res.status(401).json({ status: 401, success: 0, result: "", message: "User not created." });
+                    return res.status(400).json({ status: 400, success: 0, result: "", message: "User not created." });
                 }
            }
            

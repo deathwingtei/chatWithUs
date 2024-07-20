@@ -33,20 +33,55 @@ const EditProfileModal = ({ show, handleClose, userProfile, token, updateUserPro
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // update to db node.js
-        // apiUrl+"auth/profile/update
+        await sendProfileData(formData);
         updateUserProfile(formData);
         handleClose();
+    };
+
+    const sendProfileData = async (data) => {
+        try {
+            const response = await fetch(apiUrl+"auth/profile/update", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(data),
+            });
+        
+            const result = await response.json();
+                
+            if (!response.ok) {
+                Swal.fire({
+                    title: result.message,
+                    icon: 'error',
+                    confirmButtonText: 'Close'
+                });
+            }else{
+                Swal.fire({
+                    title: result.message,
+                    icon: 'success',
+                    confirmButtonText: 'Close'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "ERROR",
+                text: error,
+                icon: 'error',
+                confirmButtonText: 'Close'
+            });
+        }
     };
 
     const handleChangePassword = (e) => {
         e.preventDefault();
         // update to db node.js
         if(formData.newPassword&&formData.confirmPassword&&formData.confirmPassword===formData.newPassword){
-            let formData = new FormData();
-            formData.append('password', formData.newPassword);
+            let sendFormData = new FormData();
+            sendFormData.append('password', formData.newPassword);
             fetch(apiUrl+"auth/password/update", {
                 method: "POST",
                 headers: {
@@ -55,11 +90,23 @@ const EditProfileModal = ({ show, handleClose, userProfile, token, updateUserPro
                 cache: 'no-cache',
                 redirect: 'follow',
                 referrerPolicy: 'no-referrer',
-                body: formData,
+                body: sendFormData,
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                if(data.success==1){
+                    Swal.fire({
+                        title: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Close'
+                    });
+                }else{
+                    Swal.fire({
+                        title: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Close'
+                    });
+                }
                 setShowPassword(false);
             });
             setShowPassword(false);
