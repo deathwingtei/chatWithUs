@@ -53,18 +53,28 @@ exports.chatRoom  =  (req, res) => {
                         });
                         addChat.save();
 
-                        const soc = socket.getIo();
-                        soc.to(email).emit('chat:message', jsondata);
-                        return res.status(200).json(jsondata);
+                        if(userResult.permission!=="admin"){
+                            const soc = socket.getIo();
+                            soc.to(email).emit('chat:message', jsondata);
+                            // check notification and if not fine send noti to all admin email/linenotify if it has in env
+                            const appUrl = process.env.APPLICATION_URL;
+                            if(process.env.LINE_NOTIFY_TOKEN){
+                                // send line noti
+
+                                return res.status(200).json(jsondata);
+                            }
+                            else if(process.env.GMAIL_USERNAME && process.env.GMAIL_PASSWORD){
+                                // send mail admin
+
+                                return res.status(200).json(jsondata);
+                            }
+                        }
                     }else{
                         return res.status(200).json({ status: 200, success: 0, result: "", message: "" });
                     }
                 }).catch((err) => {
                     return res.status(500).json({ status: 500, success: 0, result: "", message: err });
                 });
-                // const soc = Socket.getIo();
-                // soc.to(userResult.email).emit('chat:message', jsondata);
-                // return res.status(200).json(jsondata);
             }).catch((err) => {
                 return res.status(401).json({ status: 401, success: 0, result: "", message: err });
             });
@@ -413,8 +423,7 @@ async function getAllChat (){
 
 }
 
-exports.testNoti = async (req, res) => {
-    const message = "test this";
+async function lineNoti (message){
     try {
         const result = await sendNotification(message);
         res.status(200).json({ status: result.status, message: result.message });
@@ -423,12 +432,7 @@ exports.testNoti = async (req, res) => {
     }
 };
 
-exports.testEmail = async (req, res) => {
-    // const { to, subject, text } = req.body;
-    const to = "p.kittichet@gmail.com";
-    const subject = "Test Email";
-    const text = "Node.js Test Email Gmail";
-
+async function emailNoti (to, subject, text){
     try {
       const info = await sendEmail(to, subject, text);
       res.status(200).send({ message: 'Email sent successfully', info });
@@ -436,5 +440,4 @@ exports.testEmail = async (req, res) => {
       res.status(500).send({ message: 'Failed to send email', error });
     }
 };
-
 
