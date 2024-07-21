@@ -5,6 +5,8 @@ const User = require('../models/user');
 const Chat = require('../models/chat');
 const ChatMessage = require('../models/chatMessage');
 const {microtime} = require('../util/helper');
+const sendEmail = require('../services/mailer');
+const sendNotification = require('../services/lineNotification');
 
 function changeEmailAndJoinRoom(socketId, newEmail) {
     socket.updateSocketEmailAndJoinRoom(socketId, newEmail);
@@ -410,3 +412,29 @@ async function getAllChat (){
     }
 
 }
+
+exports.testNoti = async (req, res) => {
+    const message = "test this";
+    try {
+        const result = await sendNotification(message);
+        res.status(200).json({ status: result.status, message: result.message });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.testEmail = async (req, res) => {
+    // const { to, subject, text } = req.body;
+    const to = "p.kittichet@gmail.com";
+    const subject = "Test Email";
+    const text = "Node.js Test Email Gmail";
+
+    try {
+      const info = await sendEmail(to, subject, text);
+      res.status(200).send({ message: 'Email sent successfully', info });
+    } catch (error) {
+      res.status(500).send({ message: 'Failed to send email', error });
+    }
+};
+
+
