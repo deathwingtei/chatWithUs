@@ -7,6 +7,11 @@ const notificationLogSchema = new Schema(
             type: String,
             required: true
         },
+        notificationType: {
+            type: String,
+            default: 'lineNotify',
+            required: true
+        },
         chatId: {
             type: Schema.Types.ObjectId,
             ref: 'Chat',
@@ -16,4 +21,4 @@ const notificationLogSchema = new Schema(
     { timestamps: true }
 );
 
-module.exports = mongoose.model('Chat', notificationLogSchema);
+module.exports = mongoose.model('NotificationLog', notificationLogSchema);

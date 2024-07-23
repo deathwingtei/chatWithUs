@@ -28,4 +28,4 @@ const changeLogSchema = new Schema(
     { timestamps: true }
 );
 
-module.exports = mongoose.model('Chat', changeLogSchema);
+module.exports = mongoose.model('ChangeLog', changeLogSchema);

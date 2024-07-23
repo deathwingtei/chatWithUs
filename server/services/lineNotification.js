@@ -16,8 +16,8 @@ async function sendNotification(message) {
     try {
         const response = await axios.post(url, data, { headers });
         const result = response.data;
-        // console.log("status :", result.status);
-        // console.log("message :", result.message);
+        // console.log("status :", result.status); // 200
+        // console.log("message :", result.message); // ok
         return result;
     } catch (error) {
         console.error("error:", error.message);

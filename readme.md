@@ -25,6 +25,6 @@ docker-compose up --build
 ## Login With Google /done
 ## Archive Chat /done
 ## Update User Data /done
-## Notification (Email/Line app)
+## Notification (Email/Line app) /done //send only 1 noti if have line app token send to line first if not have any dont send notify
 ## Archive Page
 ## User List Page

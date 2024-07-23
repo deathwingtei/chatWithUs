@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 const { socket } = require("../socket_with_auth");
 const jsonwebtoken = require("jsonwebtoken");
 const User = require('../models/user');
 const Chat = require('../models/chat');
 const ChatMessage = require('../models/chatMessage');
+const NotificationLog = require('../models/notificationLog');
 const {microtime} = require('../util/helper');
 const sendEmail = require('../services/mailer');
 const sendNotification = require('../services/lineNotification');
@@ -12,74 +14,116 @@ function changeEmailAndJoinRoom(socketId, newEmail) {
     socket.updateSocketEmailAndJoinRoom(socketId, newEmail);
 }
 
-exports.chatRoom  =  (req, res) => {
-    const message = req.body.message
-    const time = req.body.time;
-    const chatId = req.body.chatId;
-    const email = req.body.email;
-    let token = req.query.token;
-    if(token==""||token==null)
-    {
-        token = req.headers.authorization.split(" ")[1];
-    }
-    jsonwebtoken.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            // 401 Unauthorized -- 'Incorrect token'
-            res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect token" });
+exports.chatRoom  = async (req, res) => {
+    try {
+        const message = req.body.message
+        const time = req.body.time;
+        const chatId = req.body.chatId;
+        const email = req.body.email;
+        let token = req.query.token;
+        if(token==""||token==null)
+        {
+            token = req.headers.authorization.split(" ")[1];
         }
-        else {
-            const userData = decoded.signData.split("_");
-            const userID = userData[0];
-            const userEmail = userData[1];
 
-            User.findOne({ email: userEmail }).then((userResult)=>{
-                
-                const jsondata = {
-                    message:message,
-                    time:time,
-                    name:userResult.name,
-                    permission:userResult.permission,
-                }
-                // save chat message
-                Chat.findOne({ _id: (chatId),active: true }).then((chatResult)=>{
-                    if(chatResult!="" && chatResult!=null){
+        const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
+        const userData = decoded.signData.split("_");
+        const userID = userData[0];
+        const userEmail = userData[1];
 
-                        // found this chat. add data to db
-                        const addChat = new ChatMessage({
-                            data: message,
-                            sender: userResult.permission,
-                            userId: userResult._id.toString(),
-                            chatId: chatId
-                        });
-                        addChat.save();
+        // Check admin permission
+        const userResult = await User.findOne({  email: userEmail });
+        if (userResult) {
 
-                        if(userResult.permission!=="admin"){
-                            const soc = socket.getIo();
-                            soc.to(email).emit('chat:message', jsondata);
-                            // check notification and if not fine send noti to all admin email/linenotify if it has in env
-                            const appUrl = process.env.APPLICATION_URL;
-                            if(process.env.LINE_NOTIFY_TOKEN){
-                                // send line noti
+            const jsondata = {
+                message:message,
+                time:time,
+                name:userResult.name,
+                permission:userResult.permission,
+            }
 
-                                return res.status(200).json(jsondata);
-                            }
-                            else if(process.env.GMAIL_USERNAME && process.env.GMAIL_PASSWORD){
-                                // send mail admin
-
-                                return res.status(200).json(jsondata);
-                            }
-                        }
-                    }else{
-                        return res.status(200).json({ status: 200, success: 0, result: "", message: "" });
-                    }
-                }).catch((err) => {
-                    return res.status(500).json({ status: 500, success: 0, result: "", message: err });
-                });
-            }).catch((err) => {
-                return res.status(401).json({ status: 401, success: 0, result: "", message: err });
+            const findChat = await Chat.findOne({ _id: (chatId),active: true });
+            if(!findChat){
+                return res.status(200).json({ status: 200, success: 0, result: "", message: "" });
+            }
+            const addChat = new ChatMessage({
+                data: message,
+                sender: userResult.permission,
+                userId: userResult._id.toString(),
+                chatId: chatId
             });
+            addChat.save();
+
+            const soc = socket.getIo();
+            soc.to(email).emit('chat:message', jsondata);
+
+            if(userResult.permission!=="admin"){
+                // check notification and if not fine send noti to all admin email/linenotify if it has in env
+                const appUrl = process.env.APPLICATION_URL;
+                const messageToAdmin = `Has new user (${userResult.name}) send message. Please visit ${appUrl} for response`;
+                // check log chat id previos 1 hour before send
+                const oneHourAgo = moment().subtract(1, 'hours').toDate();
+                const recentLogs = await NotificationLog.find({
+                    chatId, // Match chatId
+                    createdAt: { $gte: oneHourAgo } // Filter for logs created within the last hour
+                });
+                if(recentLogs.length <= 0){
+                    if(process.env.LINE_NOTIFY_TOKEN){
+                        // send line noti
+                        const result = await sendNotification(messageToAdmin);
+                        if(result.status==200){
+                            // save log
+                            const notiLog = new NotificationLog({
+                                notificationTo:process.env.LINE_NOTIFY_TOKEN,
+                                notificationType:'lineNotify',
+                                chatId:chatId,
+                            });
+                            notiLog.save();
+                        }
+                    }
+                    else if(process.env.GMAIL_USERNAME && process.env.GMAIL_PASSWORD){
+                        // send mail admin
+                        // find admin email
+                        let sendEmailUser = [];
+                        const adminEmail = await User.find({
+                            permission:'admin', // Match chatId
+                        });
+                        for (const key in adminEmail) {
+							// set message to chat
+							sendEmailUser = [...sendEmailUser, adminEmail[key].email];
+						}
+                        try {
+                            const info = await sendEmail(sendEmailUser, `New User Contract : ${userResult.name} `, messageToAdmin);
+                            if(info){
+                                const notiLog = new NotificationLog({
+                                    notificationTo:JSON.stringify(sendEmailUser),
+                                    notificationType:'email',
+                                    chatId:chatId,
+                                });
+                                notiLog.save();
+                                console.log(notiLog);
+                            }
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }
+                }
+                return res.status(200).json(jsondata);
+            }else{
+                return res.status(200).json(jsondata);
+            }
+
+        } else {
+            return res.status(401).json({ status: 401, success: 0, result: "", message: "Permission Denied" });
         }
-    });
+    } catch (err) {
+        console.error(err);
+        if (err.name === 'JsonWebTokenError') {
+            // 401 Unauthorized -- 'Incorrect token'
+            return res.status(401).json({ status: 401, success: 0, result: "", message: "Incorrect token" });
+        }
+        return res.status(500).json({ status: 500, success: 0, result: "", message: "Internal Server Error" });
+    }
 }
 
 exports.previousChat = async (req, res) => {
@@ -422,22 +466,3 @@ async function getAllChat (){
     }
 
 }
-
-async function lineNoti (message){
-    try {
-        const result = await sendNotification(message);
-        res.status(200).json({ status: result.status, message: result.message });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-async function emailNoti (to, subject, text){
-    try {
-      const info = await sendEmail(to, subject, text);
-      res.status(200).send({ message: 'Email sent successfully', info });
-    } catch (error) {
-      res.status(500).send({ message: 'Failed to send email', error });
-    }
-};
-

@@ -6,6 +6,7 @@ const { curerntDate, getIPAddress } = require('../util/helper');
 require('dotenv').config();
 const User = require('../models/user');
 const LoginLog = require('../models/loginLog');
+const changeLog = require('../models/changeLog');
 
 exports.register = async (req, res) => {
     const errors = validationResult(req);
