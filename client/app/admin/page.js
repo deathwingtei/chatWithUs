@@ -226,7 +226,8 @@ export default function Page() {
 			<div className="main-container">
 				<button id={chatId?styles.archiveThisChat:styles.hideArchiveThisChat} className="btn btn-warning" onClick={archiveClick}>Archive</button>
 				<button id={styles.logoutBtn} className="btn btn-danger" onClick={logoutClick}>Logout</button>
-				<Image src={showHideBtn.src} alt={showHideBtn.alt} width={25} height={25} className={styles.hideCustomerChat} onClick={showHideListClick} />
+				{/* <Image src={showHideBtn.src} alt={showHideBtn.alt} width={25} height={25} className={styles.hideCustomerChat} onClick={showHideListClick} /> */}
+				<img src={showHideBtn.src} alt={showHideBtn.alt}  className={styles.hideCustomerChat}  onClick={showHideListClick} />
                 <div className={(activeList)?styles.customerContainer:styles.customerContainerHide}>
 					<h3>Customer List</h3>
                     <ul className={styles.customerList} id="customer-list">

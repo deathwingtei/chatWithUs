@@ -160,7 +160,8 @@ export default function Page() {
 		<div>
 			<div className="customer-chat-container">
 				<button id="logout-button"  onClick={logoutClick}>Logout</button>
-				<Image src={menuBtn.src} alt={menuBtn.alt} width={25} height={25} className={styles.menuBtn}  onClick={handleShow}  />
+				{/* <Image src={menuBtn.src} alt={menuBtn.alt} width={25} height={25} className={styles.menuBtn}  onClick={handleShow}  /> */}
+				<img src={menuBtn.src} alt={menuBtn.alt} className={styles.menuBtn}  onClick={handleShow} />
 				<h2 className="page-title">Chat With US</h2>
 				<div className="chat-messages">
 					{messages.map((data, index) => (
