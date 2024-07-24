@@ -7,6 +7,7 @@ require('dotenv').config();
 const User = require('../models/user');
 const LoginLog = require('../models/loginLog');
 const changeLog = require('../models/changeLog');
+const axios = require('axios');
 
 exports.register = async (req, res) => {
     const errors = validationResult(req);
@@ -189,11 +190,11 @@ exports.googleAuth = async (req, res, next) => {
     // console.log(req.body.credential);
     // Send request to Google to authenticate token
     try {
-        const result = await fetch(`${endpoint}?id_token=${req.body.credential}`);
-        if (!result.ok) {
-            throw new Error("Failed to authenticate token");
-        }
-        const jwt = await result.json();
+        const getTokenUrl = `${endpoint}?id_token=${req.body.credential}`;
+        // console.log(getTokenUrl);
+        const result = await axios.get(getTokenUrl);
+
+        const jwt = result.data;
         const email = jwt.email;
         const name = jwt.name;
         const picture = jwt.picture;

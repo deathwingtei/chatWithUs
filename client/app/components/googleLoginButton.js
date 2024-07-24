@@ -35,7 +35,7 @@ const GoogleLoginBtn = () => {
             alert("Login failed");
         }
         } catch (err) {
-        alert(`Error: ${err.message}`);
+            alert(`Error: ${err.message}`);
         }
     };
 
