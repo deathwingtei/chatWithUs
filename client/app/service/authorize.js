@@ -24,7 +24,11 @@ export const authenticate=(response,next)=>{
 export const getToken=()=>{
     if(window !== undefined){
         if(sessionStorage.getItem("cwu_token")){
-            return JSON.parse(sessionStorage.getItem("cwu_token"));
+            try {
+                return JSON.parse(sessionStorage.getItem("cwu_token"));
+            } catch (error) {
+                logout();
+            }
         }else{
             return false;
         }
@@ -35,7 +39,11 @@ export const getToken=()=>{
 export const getUserName=()=>{
     if(window !== undefined){
         if(sessionStorage.getItem("cwu_user")){
-            return JSON.parse(sessionStorage.getItem("cwu_user"));
+            try {
+                return JSON.parse(sessionStorage.getItem("cwu_user"));
+            } catch (error) {
+                logout();
+            }
         }else{
             return false;
         }
@@ -45,7 +53,11 @@ export const getUserName=()=>{
 export const getUserEmail=()=>{
     if(window !== undefined){
         if(sessionStorage.getItem("cwu_email")){
-            return JSON.parse(sessionStorage.getItem("cwu_email"));
+            try {
+                return JSON.parse(sessionStorage.getItem("cwu_email"));
+            } catch (error) {
+                logout();
+            }
         }else{
             return false;
         }
@@ -56,7 +68,11 @@ export const getUserEmail=()=>{
 export const getUserID=()=>{
     if(window !== undefined){
         if(sessionStorage.getItem("cwu_id")){
-            return JSON.parse(sessionStorage.getItem("cwu_id"));
+            try {
+                return JSON.parse(sessionStorage.getItem("cwu_id"));
+            } catch (error) {
+                logout();
+            }
         }else{
             return false;
         }
@@ -66,13 +82,44 @@ export const getUserID=()=>{
 export const getPermission=()=>{
     if(window !== undefined){
         if(sessionStorage.getItem("cwu_permission")){
-            return JSON.parse(sessionStorage.getItem("cwu_permission"));
+            try {
+                return JSON.parse(sessionStorage.getItem("cwu_permission"));
+            } catch (error) {
+                logout();
+            }
         }else{
             return false;
         }
     }
 }
 
+export const setEmail=(name)=>{
+    if(window !== undefined){
+        if(sessionStorage.getItem("cwu_email")){
+            try {
+                return sessionStorage.setItem("cwu_email",JSON.stringify(name));
+            } catch (error) {
+                logout();
+            }
+        }else{
+            return false;
+        }
+    }
+}
+
+export const setName=(email)=>{
+    if(window !== undefined){
+        if(sessionStorage.getItem("cwu_user")){
+            try {
+                return sessionStorage.setItem("cwu_user",JSON.stringify(email));
+            } catch (error) {
+                logout();
+            }
+        }else{
+            return false;
+        }
+    }
+}
 
 export const logout=()=>{
     if(window !== undefined){

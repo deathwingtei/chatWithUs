@@ -6,7 +6,7 @@ const { curerntDate, getIPAddress } = require('../util/helper');
 require('dotenv').config();
 const User = require('../models/user');
 const LoginLog = require('../models/loginLog');
-const changeLog = require('../models/changeLog');
+const ChangeLog = require('../models/changeLog');
 const axios = require('axios');
 
 exports.register = async (req, res) => {
@@ -96,15 +96,32 @@ exports.changePassword = (req, res) => {
         const keynnc = process.env.KEY_SECRET;
         let encpassword = hash.update(password + keynnc, 'utf-8').digest('hex');
 
-        User.findOneAndUpdate(
-            { _id: userID }, // Filter to find the document
-            { $set: { password: encpassword } }, // Update operation
-            { new: true } // Option to return the updated document
-        ).then((updateResult)=>{
-            return res.status(200).json({ status: 200, success: 1, result: updateResult, message: "Update Password Complete" });
+        User.findOne({ _id: userID }).then((logResult)=>{
+            const addLog = new ChangeLog({
+                documentName: 'users',
+                changeMessage: 'Update users password',
+                logValue: logResult.toString(),
+                ipAddress:getIPAddress(),
+                userId:userID
+            });
+            addLog.save();
+            
+            User.findOneAndUpdate(
+                { _id: userID }, // Filter to find the document
+                { $set: { password: encpassword } }, // Update operation
+                { new: true } // Option to return the updated document
+            ).then((updateResult)=>{
+                return res.status(200).json({ status: 200, success: 1, result: updateResult, message: "Update Password Complete" });
+            }).catch((err) => {
+                return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+            });
+
         }).catch((err) => {
             return res.status(500).json({ status: 500, success: 0, result: "", message: err });
         });
+
+
+
     }
     else {
         return res.status(422).json({ status: 422, success: 0, result: "", message: "Please Input All Feild" });
@@ -123,15 +140,39 @@ exports.updateProfile = (req, res) => {
             if(findDupplicateEmail){
                 return res.status(422).json({ status: 422, success: 0, result: "", message: "Email is taken." });
             }else{
-                User.findOneAndUpdate(
-                    { _id: userID }, // Filter to find the document
-                    { $set: { name: name, email:email } }, // Update operation
-                    { new: true } // Option to return the updated document
-                ).then((updateResult)=>{
-                    return res.status(200).json({ status: 200, success: 1, result: updateResult, message: "Update Successful" });
+                User.findOne({ email: email, _id: { $ne: userID } }).then((findDupplicateEmail)=>{
+                    if(findDupplicateEmail){
+                        return res.status(422).json({ status: 422, success: 0, result: "", message: "Email is taken." });
+                    }else{
+                        
+                        User.findOne({ _id: userID }).then((logResult)=>{
+                            const addLog = new ChangeLog({
+                                documentName: 'users',
+                                changeMessage: 'Update users name/email',
+                                logValue: logResult.toString(),
+                                ipAddress:getIPAddress(),
+                                userId:userID
+                            });
+                            addLog.save();
+                            
+                            User.findOneAndUpdate(
+                                { _id: userID }, // Filter to find the document
+                                { $set: { name: name, email:email } }, // Update operation
+                                { new: true } // Option to return the updated document
+                            ).then((updateResult)=>{
+                                return res.status(200).json({ status: 200, success: 1, result: updateResult, message: "Update Successful" });
+                            }).catch((err) => {
+                                return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+                            });
+    
+                        }).catch((err) => {
+                            return res.status(500).json({ status: 500, success: 0, result: "", message: err });
+                        });
+                    }
                 }).catch((err) => {
                     return res.status(500).json({ status: 500, success: 0, result: "", message: err });
                 });
+              
             }
         }).catch((err) => {
             return res.status(500).json({ status: 500, success: 0, result: "", message: err });

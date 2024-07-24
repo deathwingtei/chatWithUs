@@ -3,6 +3,7 @@
 import { useEffect,useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import Swal from 'sweetalert2';
+import { setName, setEmail  } from "../service/authorize";
 
 const EditProfileModal = ({ show, handleClose, userProfile, token, updateUserProfile }) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -60,6 +61,8 @@ const EditProfileModal = ({ show, handleClose, userProfile, token, updateUserPro
                     confirmButtonText: 'Close'
                 });
             }else{
+                setEmail(data.email);
+                setName(data.name);
                 Swal.fire({
                     title: result.message,
                     icon: 'success',

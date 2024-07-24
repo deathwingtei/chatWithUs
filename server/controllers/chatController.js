@@ -208,24 +208,26 @@ exports.previousChat = async (req, res) => {
             return res.status(200).json(jsondata);
         } else {
             // Add new chat
-            const now = new Date();
-            const newChat = new Chat({
-                title: `${userEmail}_${now.getTime()}`, // Using current timestamp instead of microtime
-                active: 1,
-                userId: thisUserId
-            });
-            await newChat.save();
+            if (userResult.permission !== "admin") {
+                const now = new Date();
+                const newChat = new Chat({
+                    title: `${userEmail}_${now.getTime()}`, // Using current timestamp instead of microtime
+                    active: 1,
+                    userId: thisUserId
+                });
+                await newChat.save();
 
-            jsondata = {
-                title: newChat.title,
-                chatId: newChat._id.toString(),
-            };
+                jsondata = {
+                    title: newChat.title,
+                    chatId: newChat._id.toString(),
+                };
 
-            const allChat = await getAllChat();
-            const soc = socket.getIo();
-            soc.emit('chat:cusList', allChat);
+                const allChat = await getAllChat();
+                const soc = socket.getIo();
+                soc.emit('chat:cusList', allChat);
 
-            return res.status(200).json(jsondata);
+                return res.status(200).json(jsondata);
+            }
         }
     } catch (err) {
         console.error(err);
