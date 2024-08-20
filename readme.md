@@ -27,20 +27,22 @@ docker-compose up --build
 
 ## upcomming Next.js and Node.js Feature
 
-<span style="color: green;">Done</span> <span style="color: red;">Upcomming</span>
+<code style="color : green">Done</code>
 
-1. <span style="color: green;">Login With Google</span>
+1. <code style="color: green;">Login With Google</code>
 
-2. <span style="color: green;">Archive Chat</span>
+2. <code style="color: green;">Archive Chat</code>
 
-3. <span style="color: green;">Update User Data</span>
+3. <code style="color: green;">Update User Data</code>
 
-4. <span style="color: green;">Notification (Email/Line app)</span> //send only 1 noti if have line app token send to line first if not have any dont send notify
+4. <code style="color: green;">Notification (Email/Line app)</code> //send only 1 noti if have line app token send to line first if not have any dont send notify
 
-5. <span style="color: red;">PWA</span>
+<code style="color: red;">Upcomming</code>
 
-6. <span style="color: red;">Archive Page</span>
+5. <code style="color: red;">PWA</code>
 
-7. <span style="color: red;">User List Page</span>
+6. <code style="color: red;">Archive Page</code>
 
-8. <span style="color: red;">Online check</span>
+7. <code style="color: red;">User List Page</code>
+
+8. <code style="color: red;">Online check</code>
