@@ -1,7 +1,7 @@
 # backend/Dockerfile
 
 # Use the official Node.js image as a base
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Set the working directory to an absolute path
 WORKDIR /usr/src/app
