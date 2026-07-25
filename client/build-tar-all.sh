@@ -22,7 +22,7 @@ OUTPUT_DIR="${2:-..}"
 
 # เดา IMAGE_PREFIX: ใช้ ENV ก่อน ถ้าไม่มี ใช้ APP_NAME, ถ้าไม่มีอีก ใช้ชื่อ repo หรือชื่อโฟลเดอร์ปัจจุบัน
 # IMAGE_PREFIX="${IMAGE_PREFIX:-${APP_NAME:-$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")}}"
-IMAGE_PREFIX=chatwithus
+IMAGE_PREFIX=chatwithus-web
 ENVS="${ENVS:-production}"
 COMPRESS="${COMPRESS:-false}"
 
