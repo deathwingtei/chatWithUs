@@ -7,6 +7,7 @@ COPY package*.json bun.lock* ./
 RUN bun install
 
 COPY . .
+RUN rm -f .env .env.local && cp .env.production .env
 
 # ถ้าใช้ prisma ต้อง generate ก่อน
 # RUN bunx prisma generate
@@ -24,6 +25,7 @@ RUN apk add --no-cache libstdc++ gcompat
 
 COPY --from=build /app/server ./server
 COPY --from=build /app/public ./public
+COPY --from=build /app/.env ./.env
 
 RUN chmod +x ./server
 
