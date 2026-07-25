@@ -1,0 +1,32 @@
+# ---- Build Stage ----
+FROM oven/bun:1-alpine AS build
+
+WORKDIR /app
+
+COPY package*.json bun.lock* ./
+RUN bun install
+
+COPY . .
+
+# ถ้าใช้ prisma ต้อง generate ก่อน
+# RUN bunx prisma generate
+
+RUN bun run bun:build
+
+
+# ---- Release Stage ----
+FROM alpine:3.19 AS release
+
+WORKDIR /app
+
+# ต้องมี libc compatibility สำหรับ bun compiled binary
+RUN apk add --no-cache libstdc++ gcompat
+
+COPY --from=build /app/server ./server
+COPY --from=build /app/public ./public
+
+RUN chmod +x ./server
+
+EXPOSE 3031
+
+CMD ["./server"]

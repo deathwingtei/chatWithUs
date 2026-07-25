@@ -50,4 +50,4 @@ Thumbs.db
 *.wmv
 
 package-lock.json
-.env
+.env*

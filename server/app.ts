@@ -81,7 +81,7 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.status(status).json({ message: message, data: data });
 });
 
-const PORT = process.env.PORT || 7457;
+const PORT = process.env.PORT || 3031;
 
 const mongodbUrl = process.env.MONGODB_URL || "";
 
